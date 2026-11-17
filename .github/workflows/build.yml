@@ -2,9 +2,15 @@ name: Build Freedom VPN APK
 # Signing: secrets KEYSTORE_BASE64 and KEYSTORE_PASSWORD (alias freedomvpn).
 
 # Run manually (Actions -> Build Freedom VPN APK -> Run workflow) or push a tag like v1.0.1.
-# A tag build also publishes a GitHub Release, which the app uses for update checks.
+# A tag build, or a manual run with "release" set (e.g. 1.0.1), publishes a GitHub Release
+# (tag v<version>), which the app uses for update checks. Empty "release" = test build only.
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Release version without "v" (e.g. 1.0.1). Empty = test build'
+        required: false
+        default: ''
   push:
     tags:
       - 'v*'
@@ -34,6 +40,10 @@ jobs:
       run: |
         if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
           echo "APP_VERSION_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+          echo "RELEASE_TAG=$GITHUB_REF_NAME" >> $GITHUB_ENV
+        elif [[ -n "${{ inputs.release }}" ]]; then
+          echo "APP_VERSION_NAME=${{ inputs.release }}" >> $GITHUB_ENV
+          echo "RELEASE_TAG=v${{ inputs.release }}" >> $GITHUB_ENV
         else
           echo "APP_VERSION_NAME=0.0.${{ github.run_number }}-test" >> $GITHUB_ENV
         fi
@@ -137,9 +147,12 @@ jobs:
         path: ${{ github.workspace }}/out/*.apk
 
     - name: Publish GitHub Release
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: env.RELEASE_TAG != ''
       uses: softprops/action-gh-release@v2
       with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: Freedom VPN ${{ env.RELEASE_TAG }}
+        target_commitish: ${{ github.sha }}
         files: |
           ${{ github.workspace }}/out/FreedomVPN.apk
           ${{ github.workspace }}/out/*arm64-v8a*.apk
