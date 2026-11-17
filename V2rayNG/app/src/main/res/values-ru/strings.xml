@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">v2rayNG</string>
-    <string name="app_widget_name">v2rayNG</string>
-    <string name="app_tile_name">v2rayNG</string>
+    <string name="app_name" translatable="false">Freedom VPN</string>
+    <string name="app_widget_name">Freedom VPN</string>
+    <string name="app_tile_name">Freedom VPN</string>
     <string name="app_tile_first_use">Добавьте профиль в приложении перед использованием этой функции.</string>
     <string name="navigation_drawer_open">Открыть панель навигации</string>
     <string name="navigation_drawer_close">Закрыть панель навигации</string>
@@ -14,7 +14,7 @@
     <string name="pull_down_to_refresh">Потяните вниз для обновления!</string>
 
     <!-- Notifications -->
-    <string name="notification_channel_service">Служба v2rayNG</string>
+    <string name="notification_channel_service">Служба Freedom VPN</string>
     <string name="notification_channel_subscription_updates">Обновления подписок</string>
     <string name="notification_channel_connection_checks">Проверки соединения</string>
     <string name="notification_action_stop_v2ray">Остановить</string>
@@ -304,7 +304,7 @@
     <string name="title_translators">Переводчики</string>
     <string name="title_tg_channel">Telegram-канал</string>
 
-    <string name="title_pref_promotion">Предложения</string>
+    <string name="title_pref_promotion">Бот Freedom VPN</string>
 
     <string name="title_pref_auto_update_subscription">Автоматически обновлять подписки</string>
     <string name="summary_pref_auto_update_subscription">Автоматическое обновление подписок в фоновом режиме с указанным интервалом. В зависимости от устройства эта функция может работать не всегда.</string>

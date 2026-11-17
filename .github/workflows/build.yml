@@ -1,14 +1,12 @@
-name: Build APK
+name: Build Freedom VPN APK
 
+# Run manually (Actions -> Build Freedom VPN APK -> Run workflow) or push a tag like v1.0.1.
+# A tag build also publishes a GitHub Release, which the app uses for update checks.
 on:
   workflow_dispatch:
-    inputs:
-      release_tag:
-        required: false
-        type: string
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -23,6 +21,22 @@ jobs:
       with:
         submodules: 'recursive'
         fetch-depth: '0'
+
+    - name: Check signing secrets
+      run: |
+        if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ] || [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ]; then
+          echo "::error::Add secrets KEYSTORE_BASE64 and KEYSTORE_PASSWORD (Settings -> Secrets and variables -> Actions)"
+          exit 1
+        fi
+
+    - name: Version from tag
+      run: |
+        if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+          echo "APP_VERSION_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+        else
+          echo "APP_VERSION_NAME=0.0.${{ github.run_number }}-test" >> $GITHUB_ENV
+        fi
+        echo "APP_VERSION_CODE=${{ github.run_number }}" >> $GITHUB_ENV
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v4
@@ -52,7 +66,7 @@ jobs:
       if: steps.cache-libhevtun-restore.outputs.cache-hit != 'true'
       run: |
         bash compile-hevtun.sh
-    
+
     - name: Save libhevtun
       if: steps.cache-libhevtun-restore.outputs.cache-hit != 'true'
       uses: actions/cache/save@v6
@@ -72,13 +86,22 @@ jobs:
         echo "CURRENT_TAG=$CURRENT_TAG" >> $GITHUB_ENV
         popd
 
-    - name: Download libv2ray
+    - name: Download libv2ray (Xray core)
       uses: robinraju/release-downloader@v1.13
       with:
         repository: '2dust/AndroidLibXrayLite'
         tag: ${{ env.CURRENT_TAG }}
         fileName: 'libv2ray.aar'
         out-file-path: V2rayNG/app/libs/
+
+    # The panel templates (Auto, White lists) use RoscomVPN codes such as geoip:direct and
+    # geosite:whitelist, so the app ships the same geo files that Happ gets from the routing header.
+    - name: Download RoscomVPN geo files
+      run: |
+        ASSETS=V2rayNG/app/src/main/assets
+        curl -fsSL -o $ASSETS/geosite.dat https://github.com/hydraponique/roscomvpn-geosite/releases/latest/download/geosite.dat
+        curl -fsSL -o $ASSETS/geoip.dat https://github.com/hydraponique/roscomvpn-geoip/releases/latest/download/geoip.dat
+        ls -l $ASSETS/*.dat
 
     - name: Setup Java
       uses: actions/setup-java@v6.2.0
@@ -87,76 +110,37 @@ jobs:
         java-version: '21'
 
     - name: Decode Keystore
-      uses: timheuer/base64-to-file@v2.0.0
-      id: android_keystore
-      with:
-        fileName: "android_keystore.jks"
-        encodedString: ${{ secrets.APP_KEYSTORE_BASE64 }}
+      run: |
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ${{ runner.temp }}/freedomvpn.jks
 
     - name: Build APK
       run: |
         cd ${{ github.workspace }}/V2rayNG
         echo "sdk.dir=${ANDROID_HOME}" > local.properties
         chmod 755 gradlew
-        ./gradlew licenseFdroidReleaseReport
-        ./gradlew assembleRelease -Pandroid.injected.signing.store.file=${{ steps.android_keystore.outputs.filePath }} -Pandroid.injected.signing.store.password=${{ secrets.APP_KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.APP_KEYSTORE_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.APP_KEY_PASSWORD }}
-    
-    - name: Upload arm64-v8a APK
+        ./gradlew assemblePlaystoreRelease \
+          -Pandroid.injected.signing.store.file=${{ runner.temp }}/freedomvpn.jks \
+          -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+          -Pandroid.injected.signing.key.alias=freedomvpn \
+          -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_PASSWORD }}
+        mkdir -p ${{ github.workspace }}/out
+        cp app/build/outputs/apk/playstore/release/*.apk ${{ github.workspace }}/out/
+        # stable name for the download link: .../releases/latest/download/FreedomVPN.apk
+        cp app/build/outputs/apk/playstore/release/*universal*.apk ${{ github.workspace }}/out/FreedomVPN.apk
+        ls -l ${{ github.workspace }}/out
+
+    - name: Upload APKs
       uses: actions/upload-artifact@v7
-      if: ${{  success() }}
       with:
-        name: arm64-v8a
-        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*arm64-v8a*.apk
+        name: FreedomVPN-apk
+        path: ${{ github.workspace }}/out/*.apk
 
-    - name: Upload armeabi-v7a APK
-      uses: actions/upload-artifact@v7
-      if: ${{  success() }}
+    - name: Publish GitHub Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v2
       with:
-        name: armeabi-v7a
-        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*armeabi-v7a*.apk
-
-    - name: Upload x86 APK
-      uses: actions/upload-artifact@v7
-      if: ${{  success() }}
-      with:
-        name: x86-apk
-        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*x86*.apk
-
-    - name: Upload universal APK
-      uses: actions/upload-artifact@v7
-      if: ${{ success() }}
-      with:
-        name: universal-apk
-        path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/*/release/*universal*.apk
-
-  sign-and-release:
-    needs: build
-    runs-on: ubuntu-26.04
-    if: github.event_name == 'workflow_dispatch' && inputs.release_tag != ''
-
-    steps:
-      - name: Download APK artifacts
-        uses: actions/download-artifact@v8
-        with:
-          path: release
-
-      - name: Sign APK files
-        run: |
-          printf '%s' "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          KEY=$(gpg --list-secret-keys --with-colons | awk -F: '/^fpr:/ {print $10; exit}')
-          mkdir -p release-files
-
-          find release -type f -name '*.apk' | while read apk; do
-            cp "$apk" release-files/
-            gpg --batch --yes --local-user "$KEY" --detach-sign --output "release-files/$(basename "$apk").sig" "$apk"
-          done
-
-          gpg --armor --export "$KEY" > release-files/v2rayN-public-key.asc
-
-      - name: Upload APKs, signatures and public key to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          file: release-files/*
-          tag: ${{ inputs.release_tag }}
-          file_glob: true
-          prerelease: true
+        files: |
+          ${{ github.workspace }}/out/FreedomVPN.apk
+          ${{ github.workspace }}/out/*arm64-v8a*.apk
+          ${{ github.workspace }}/out/*armeabi-v7a*.apk
+          ${{ github.workspace }}/out/*universal*.apk

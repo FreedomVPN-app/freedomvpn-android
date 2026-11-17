@@ -11,6 +11,7 @@ import com.v2ray.ang.AppConfig.GEOIP_PRIVATE
 import com.v2ray.ang.AppConfig.GEOSITE_PRIVATE
 import com.v2ray.ang.AppConfig.TAG_DIRECT
 import com.v2ray.ang.AppConfig.VPN
+import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.dto.V2rayConfig
 import com.v2ray.ang.dto.entities.ProfileEntry
 import com.v2ray.ang.dto.entities.RulesetItem
@@ -310,9 +311,13 @@ object SettingsManager {
 
         try {
             val geo = arrayOf(AppConfig.GEOSITE_DAT, AppConfig.GEOIP_DAT, AppConfig.GEOIP_ONLY_CN_PRIVATE_DAT)
+            // Freedom VPN: the APK carries RoscomVPN geo files (the panel templates need their codes,
+            // e.g. geoip:direct, geosite:whitelist). Replace the copies once after every app update.
+            val assetsVersionKey = "pref_freedom_assets_version"
+            val appUpdated = MmkvManager.decodeSettingsString(assetsVersionKey) != BuildConfig.VERSION_NAME
             assets.list("")
                 ?.filter { geo.contains(it) }
-                ?.filter { !File(extFolder, it).exists() }
+                ?.filter { appUpdated || !File(extFolder, it).exists() }
                 ?.forEach {
                     val target = File(extFolder, it)
                     assets.open(it).use { input ->
@@ -322,6 +327,7 @@ object SettingsManager {
                     }
                     LogUtil.i(AppConfig.TAG, "Copied from apk assets folder to ${target.absolutePath}")
                 }
+            MmkvManager.encodeSettings(assetsVersionKey, BuildConfig.VERSION_NAME)
         } catch (e: Exception) {
             LogUtil.e(ANG_PACKAGE, "asset copy failed", e)
         }

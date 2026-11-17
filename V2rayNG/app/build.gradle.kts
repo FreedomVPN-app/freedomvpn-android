@@ -10,11 +10,18 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.v2ray.ang"
+        // Freedom VPN: own package id, so the app installs next to the original v2rayNG
+        applicationId = "com.topfreedom.vpn"
         minSdk = 24
         targetSdk = 37
-        versionCode = 760
-        versionName = "2.4.0"
+        // CI passes the version from the git tag (v1.2.3 -> 1.2.3) and the run number
+        versionCode = (System.getenv("APP_VERSION_CODE") ?: "1").toInt()
+        versionName = System.getenv("APP_VERSION_NAME") ?: "1.0.0"
+
+        // GitHub repo "owner/name" used for update checks and the About screen.
+        // GitHub Actions sets GITHUB_REPOSITORY automatically.
+        val updateRepo = System.getenv("GITHUB_REPOSITORY") ?: "topfreedom/freedomvpn-android"
+        buildConfigField("String", "UPDATE_REPO", "\"$updateRepo\"")
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {
@@ -92,7 +99,7 @@ android {
                 .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
                 .forEach { output ->
                     val abi = output.getFilter("ABI") ?: "universal"
-                    output.outputFileName = "v2rayNG_${variant.versionName}-fdroid_${abi}.apk"
+                    output.outputFileName = "FreedomVPN_${variant.versionName}-fdroid_${abi}.apk"
                     if (versionCodes.containsKey(abi)) {
                         output.versionCodeOverride =
                             (100 * variant.versionCode + versionCodes[abi]!!).plus(5000000)
@@ -112,7 +119,7 @@ android {
                     else
                         "universal"
 
-                    output.outputFileName = "v2rayNG_${variant.versionName}_${abi}.apk"
+                    output.outputFileName = "FreedomVPN_${variant.versionName}_${abi}.apk"
                     if (versionCodes.containsKey(abi)) {
                         output.versionCodeOverride =
                             (1000000 * versionCodes[abi]!!).plus(variant.versionCode)
