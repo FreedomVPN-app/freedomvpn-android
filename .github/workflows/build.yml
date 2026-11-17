@@ -1,4 +1,5 @@
 name: Build Freedom VPN APK
+# Signing: secrets KEYSTORE_BASE64 and KEYSTORE_PASSWORD (alias freedomvpn).
 
 # Run manually (Actions -> Build Freedom VPN APK -> Run workflow) or push a tag like v1.0.1.
 # A tag build also publishes a GitHub Release, which the app uses for update checks.
