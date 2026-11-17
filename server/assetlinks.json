@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.topfreedom.vpn",
+      "sha256_cert_fingerprints": [
+        "EB:07:A2:0E:63:7A:CF:A6:B6:1E:83:33:CD:A4:3F:8C:F4:BB:9B:2A:5B:5B:B6:39:8D:0B:78:60:8C:58:5D:2B"
+      ]
+    }
+  }
+]

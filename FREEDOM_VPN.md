@@ -13,6 +13,18 @@
 - В APK вложены geo-файлы RoscomVPN (`geoip:direct`, `geosite:whitelist`, `category-ru` и др.) — те же, что Happ получает по заголовку routing. После каждого обновления приложения они перезаписываются.
 - Проверка обновлений и раздел «О программе» смотрят на этот репозиторий; «Поддержка» → @topfreedom_support_bot, Telegram и пункт меню → @Topfreedom_bot.
 
+## Вход в аккаунт (Telegram, Google, Яндекс)
+Код: `V2rayNG/app/src/main/java/com/v2ray/ang/freedom/`. Адреса — в `FreedomConfig.kt`.
+- Экран входа показывается при первом запуске (пока нет подписок) и из меню («Аккаунт»).
+- Работает через API кабинета Bedolaga (`https://cabinet.topfreedomhub.com/api/cabinet`):
+  вход → если подписки нет, включается пробный период → ссылка на подписку → импорт → выбран «⚡ Авто».
+- Telegram: `/auth/deeplink/request` → бот `?start=webauth_<token>` → `/auth/deeplink/poll`. Бот подтверждает вход только
+  зарегистрированным пользователям: новому нужно сначала нажать «Старт».
+- Google/Яндекс: `/auth/oauth/<provider>/authorize` → браузер → `CABINET_URL/auth/oauth/callback` (Android App Link)
+  → `/auth/oauth/<provider>/callback`. Нужен `server/assetlinks.json` по адресу
+  `https://cabinet.topfreedomhub.com/.well-known/assetlinks.json`. Колбэки, начатые не приложением (вход в веб-кабинет
+  в браузере на этом же телефоне), приложение передаёт в браузер.
+
 ## Сборка
 GitHub Actions, workflow «Build Freedom VPN APK».
 - Секреты репозитория: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD` (alias ключа — `freedomvpn`).
@@ -27,4 +39,4 @@ GitHub Actions, workflow «Build Freedom VPN APK».
 git remote add upstream https://github.com/2dust/v2rayNG.git
 git fetch upstream master && git merge upstream/master
 ```
-Конфликты возможны в изменённых файлах: build.gradle.kts, AppConfig.kt, AngConfigManager.kt, UrlSchemeActivity.kt, SettingsManager.kt, HttpUtil.kt, SubscriptionItem.kt, AndroidManifest.xml, strings.xml.
+Конфликты возможны в изменённых файлах: build.gradle.kts, AppConfig.kt, AngConfigManager.kt, MainActivity.kt, MainDrawer.kt, UrlSchemeActivity.kt, SettingsManager.kt, HttpUtil.kt, SubscriptionItem.kt, AndroidManifest.xml, strings.xml.

@@ -94,9 +94,20 @@ class MainActivity : HelperBaseComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Freedom VPN: first start without any subscription -> sign-in screen
+        if (com.v2ray.ang.freedom.AccountManager.shouldShowLogin()) {
+            startActivity(com.v2ray.ang.freedom.LoginActivity.intent(this))
+        }
         mainViewModel.onAction(MainAction.Initialize)
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
+    }
+
+    // Freedom VPN: after sign-in / link import the existing main screen is brought to front
+    // (singleTask) — reload groups so the imported servers and selection show up.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        mainViewModel.onAction(MainAction.RefreshGroups)
     }
 
     @Composable
@@ -157,10 +168,8 @@ class MainActivity : HelperBaseComponentActivity() {
             MainDestination.BackupRestore -> Intent(this, BackupActivity::class.java)
             MainDestination.About -> Intent(this, AboutActivity::class.java)
             MainDestination.Promotion -> {
-                Utils.openUri(
-                    this,
-                    "${Utils.decode(AppConfig.APP_PROMOTION_URL)}?t=${System.currentTimeMillis()}"
-                )
+                // Freedom VPN: the drawer item opens the account / sign-in screen
+                startActivity(com.v2ray.ang.freedom.LoginActivity.intent(this))
                 return
             }
         }

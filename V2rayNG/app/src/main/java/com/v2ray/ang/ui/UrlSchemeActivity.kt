@@ -14,9 +14,7 @@ import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.extension.toast
 import com.v2ray.ang.extension.toastError
-import com.v2ray.ang.handler.AngConfigManager
-import com.v2ray.ang.handler.MmkvManager
-import com.v2ray.ang.handler.SubscriptionUpdater
+import com.v2ray.ang.freedom.FreedomImporter
 import com.v2ray.ang.ui.base.BaseComponentActivity
 import com.v2ray.ang.ui.main.MainActivity
 import com.v2ray.ang.util.LogUtil
@@ -116,38 +114,6 @@ class UrlSchemeActivity : BaseComponentActivity() {
     }
 
     /** Runs on a background thread. Returns true if something was imported or refreshed. */
-    private fun importLink(link: String): Boolean {
-        val baseUrl = link.substringBefore('#').trim()
-
-        // Same subscription opened again from the bot: refresh it instead of reporting a failure.
-        val existing = MmkvManager.decodeSubscriptions()
-            .firstOrNull { it.subscription.url.substringBefore('#').trim() == baseUrl }
-        val success = if (existing != null) {
-            AngConfigManager.updateConfigViaSub(existing).successCount > 0
-        } else {
-            val (count, countSub) = AngConfigManager.importBatchConfig(link, "", false)
-            count + countSub > 0
-        }
-
-        val subId = MmkvManager.decodeSubscriptions()
-            .firstOrNull { it.subscription.url.substringBefore('#').trim() == baseUrl }
-            ?.guid
-        if (subId != null) {
-            selectFirstServerIfNeeded(subId)
-        }
-        SubscriptionUpdater.sync(applicationContext, forceReschedule = true)
-        return success
-    }
-
-    private fun selectFirstServerIfNeeded(subId: String) {
-        val selected = MmkvManager.getSelectServer()
-        val selectedIsValid = !selected.isNullOrEmpty() &&
-                MmkvManager.decodeAllServerList().contains(selected)
-        if (selectedIsValid) {
-            return
-        }
-        MmkvManager.decodeServerList(subId).firstOrNull()?.let { first ->
-            MmkvManager.setSelectServer(first)
-        }
-    }
+    private fun importLink(link: String): Boolean =
+        FreedomImporter.importSubscription(applicationContext, link)
 }

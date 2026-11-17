@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Freedom VPN: экран входа -->
+<resources>
+    <string name="freedom_login_subtitle">Войдите — приложение само настроит подключение. Новым пользователям — бесплатный пробный период.</string>
+    <string name="freedom_login_telegram">Войти через Telegram</string>
+    <string name="freedom_login_google">Войти через Google</string>
+    <string name="freedom_login_yandex">Войти через Яндекс</string>
+    <string name="freedom_login_have_link">У меня уже есть ссылка на подписку</string>
+    <string name="freedom_login_starting">Подключаемся…</string>
+    <string name="freedom_login_setting_up">Настраиваем подключение…</string>
+    <string name="freedom_login_waiting_browser">Завершите вход в браузере…</string>
+    <string name="freedom_login_waiting_telegram">Подтвердите вход в боте (кнопка «Да, войти») и вернитесь в приложение.\n\nЕсли бот просит сначала зарегистрироваться — нажмите «Старт», вернитесь и снова нажмите «Войти через Telegram».</string>
+    <string name="freedom_login_open_bot_again">Открыть бота ещё раз</string>
+    <string name="freedom_login_expired">Ссылка для входа устарела. Попробуйте ещё раз.</string>
+    <string name="freedom_login_error">Не удалось войти: %1$s</string>
+    <string name="freedom_login_failed">Не удалось войти</string>
+    <string name="freedom_login_trial_unavailable">Активной подписки нет, а пробный период недоступен.</string>
+    <string name="freedom_open_bot_pay">Оплатить или продлить в боте</string>
+    <string name="freedom_support">Поддержка</string>
+    <string name="freedom_account_signed_in">Вы вошли через %1$s</string>
+    <string name="freedom_account_refresh">Обновить настройки подключения</string>
+    <string name="freedom_account_logout">Выйти</string>
+    <string name="freedom_account">Аккаунт</string>
+</resources>
