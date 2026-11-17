@@ -40,6 +40,25 @@ object AccountManager {
         MmkvManager.encodeSettings(KEY_LOGIN_METHOD, method)
     }
 
+    /**
+     * Runs [block] with the access token; on HTTP 401 refreshes the session once and retries.
+     * Blocking: call from Dispatchers.IO. Throws ApiException(401) if the session cannot be refreshed.
+     */
+    fun <T> withToken(block: (String) -> T): T {
+        val token = accessToken().orEmpty()
+        try {
+            return block(token)
+        } catch (e: CabinetApi.ApiException) {
+            if (e.code != 401) throw e
+        }
+        val refresh = MmkvManager.decodeSettingsString(KEY_REFRESH)
+        if (refresh.isNullOrEmpty()) throw CabinetApi.ApiException(401, "session expired")
+        val auth = CabinetApi.refresh(refresh)
+        MmkvManager.encodeSettings(KEY_ACCESS, auth.accessToken)
+        if (auth.refreshToken.isNotEmpty()) MmkvManager.encodeSettings(KEY_REFRESH, auth.refreshToken)
+        return block(auth.accessToken)
+    }
+
     fun logout() {
         listOf(KEY_ACCESS, KEY_REFRESH, KEY_LOGIN_METHOD).forEach { MmkvManager.encodeSettings(it, null as String?) }
     }
@@ -97,48 +116,82 @@ object AccountManager {
 
     sealed interface SetupResult {
         data object Imported : SetupResult
-        data class TrialUnavailable(val reason: String?) : SetupResult
+        /** Signed in, but there is no active subscription: show trial / purchase options. */
+        data object NoSubscription : SetupResult
         data class Failed(val message: String, val httpCode: Int = 0) : SetupResult
     }
 
+    /** Everything the account screen shows. */
+    data class AccountInfo(
+        val subscription: CabinetApi.SubscriptionData?,
+        val trial: CabinetApi.TrialInfo?,
+    ) {
+        val hasActive: Boolean get() = subscription?.isActive == true
+    }
+
+    /** Blocking. */
+    fun loadAccount(): AccountInfo {
+        val status = withToken { CabinetApi.subscriptionStatus(it) }
+        val sub = if (status.hasSubscription) status.subscription else null
+        val trial = if (sub?.isActive == true) null else try {
+            withToken { CabinetApi.trialInfo(it) }
+        } catch (e: CabinetApi.ApiException) {
+            if (e.code == 401) throw e
+            LogUtil.w(AppConfig.TAG, "Freedom: trial info unavailable: ${e.code}")
+            null
+        }
+        return AccountInfo(sub, trial)
+    }
+
     /**
-     * Runs on a background thread after a successful login:
-     * gets the subscription (activating the trial if the user has none), imports it into the app
-     * and selects the first server.
+     * Blocking. Imports the user's subscription into the app if it is active.
+     * Does not activate the trial: the user chooses trial or purchase on the account screen.
      */
-    fun setupSubscription(context: Context, accessToken: String): SetupResult {
+    fun setupSubscription(context: Context): SetupResult {
         return try {
-            var status = CabinetApi.subscriptionStatus(accessToken)
-            if (!status.hasSubscription || status.subscription == null) {
-                val trial = CabinetApi.trialInfo(accessToken)
-                if (!trial.isAvailable) {
-                    return SetupResult.TrialUnavailable(trial.reasonUnavailable)
-                }
-                CabinetApi.activateTrial(accessToken)
-                status = CabinetApi.subscriptionStatus(accessToken)
+            val status = withToken { CabinetApi.subscriptionStatus(it) }
+            if (!status.hasSubscription || status.subscription?.isActive != true) {
+                return SetupResult.NoSubscription
             }
-
-            var url = status.subscription?.subscriptionUrl
-            if (url.isNullOrEmpty()) {
-                val link = CabinetApi.connectionLink(accessToken)
-                url = link.subscriptionUrl ?: link.displayLink
-            }
-            if (url.isNullOrEmpty() || !url.startsWith("http")) {
-                return SetupResult.Failed("subscription link is hidden or not ready")
-            }
-
-            MmkvManager.encodeSettings(KEY_SUB_URL, url)
-            if (FreedomImporter.importSubscription(context, "$url#Freedom VPN")) {
-                SetupResult.Imported
-            } else {
-                SetupResult.Failed("import failed")
-            }
+            importCurrent(context, status.subscription.subscriptionUrl)
         } catch (e: CabinetApi.ApiException) {
             LogUtil.e(AppConfig.TAG, "Freedom: subscription setup failed", e)
             SetupResult.Failed(e.message ?: "HTTP ${e.code}", e.code)
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Freedom: subscription setup failed", e)
             SetupResult.Failed(e.message ?: e.javaClass.simpleName)
+        }
+    }
+
+    /** Blocking. Activates the free trial and imports it. */
+    fun activateTrial(context: Context): SetupResult {
+        return try {
+            withToken { CabinetApi.activateTrial(it) }
+            val status = withToken { CabinetApi.subscriptionStatus(it) }
+            importCurrent(context, status.subscription?.subscriptionUrl)
+        } catch (e: CabinetApi.ApiException) {
+            LogUtil.e(AppConfig.TAG, "Freedom: trial activation failed", e)
+            SetupResult.Failed(e.message ?: "HTTP ${e.code}", e.code)
+        } catch (e: Exception) {
+            LogUtil.e(AppConfig.TAG, "Freedom: trial activation failed", e)
+            SetupResult.Failed(e.message ?: e.javaClass.simpleName)
+        }
+    }
+
+    private fun importCurrent(context: Context, subscriptionUrl: String?): SetupResult {
+        var url = subscriptionUrl
+        if (url.isNullOrEmpty()) {
+            val link = withToken { CabinetApi.connectionLink(it) }
+            url = link.subscriptionUrl ?: link.displayLink
+        }
+        if (url.isNullOrEmpty() || !url.startsWith("http")) {
+            return SetupResult.Failed("subscription link is hidden or not ready")
+        }
+        MmkvManager.encodeSettings(KEY_SUB_URL, url)
+        return if (FreedomImporter.importSubscription(context, "$url#Freedom VPN")) {
+            SetupResult.Imported
+        } else {
+            SetupResult.Failed("import failed")
         }
     }
 }

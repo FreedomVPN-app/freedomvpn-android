@@ -42,8 +42,15 @@ object CabinetApi {
     data class SubscriptionData(
         @SerializedName("subscription_url") val subscriptionUrl: String? = null,
         @SerializedName("is_active") val isActive: Boolean = false,
+        @SerializedName("is_expired") val isExpired: Boolean = false,
         @SerializedName("is_trial") val isTrial: Boolean = false,
         @SerializedName("end_date") val endDate: String? = null,
+        @SerializedName("days_left") val daysLeft: Int = 0,
+        @SerializedName("time_left_display") val timeLeftDisplay: String? = null,
+        @SerializedName("traffic_limit_gb") val trafficLimitGb: Int = 0,
+        @SerializedName("traffic_used_gb") val trafficUsedGb: Double = 0.0,
+        @SerializedName("device_limit") val deviceLimit: Int = 0,
+        @SerializedName("tariff_name") val tariffName: String? = null,
     )
 
     data class SubscriptionStatus(
@@ -53,8 +60,68 @@ object CabinetApi {
 
     data class TrialInfo(
         @SerializedName("is_available") val isAvailable: Boolean = false,
+        @SerializedName("duration_days") val durationDays: Int = 0,
+        @SerializedName("traffic_limit_gb") val trafficLimitGb: Int = 0,
+        @SerializedName("device_limit") val deviceLimit: Int = 0,
+        @SerializedName("requires_payment") val requiresPayment: Boolean = false,
         @SerializedName("reason_unavailable") val reasonUnavailable: String? = null,
     )
+
+    data class TariffPeriod(
+        @SerializedName("days") val days: Int = 0,
+        @SerializedName("label") val label: String? = null,
+        @SerializedName("price_kopeks") val priceKopeks: Long = 0,
+        @SerializedName("price_label") val priceLabel: String? = null,
+        @SerializedName("price_per_month_label") val pricePerMonthLabel: String? = null,
+        @SerializedName("is_highlighted") val isHighlighted: Boolean = false,
+    )
+
+    data class Tariff(
+        @SerializedName("id") val id: Int = 0,
+        @SerializedName("name") val name: String? = null,
+        @SerializedName("description") val description: String? = null,
+        @SerializedName("traffic_limit_label") val trafficLimitLabel: String? = null,
+        @SerializedName("device_limit") val deviceLimit: Int = 0,
+        @SerializedName("is_available") val isAvailable: Boolean = true,
+        @SerializedName("is_current") val isCurrent: Boolean = false,
+        @SerializedName("periods") val periods: List<TariffPeriod>? = null,
+    )
+
+    data class PurchaseOptions(
+        @SerializedName("sales_mode") val salesMode: String? = null,
+        @SerializedName("tariffs") val tariffs: List<Tariff>? = null,
+        @SerializedName("balance_kopeks") val balanceKopeks: Long = 0,
+        @SerializedName("balance_label") val balanceLabel: String? = null,
+    )
+
+    data class PaymentOption(
+        @SerializedName("id") val id: String = "",
+        @SerializedName("name") val name: String? = null,
+        @SerializedName("description") val description: String? = null,
+    )
+
+    data class PaymentMethod(
+        @SerializedName("id") val id: String = "",
+        @SerializedName("name") val name: String? = null,
+        @SerializedName("description") val description: String? = null,
+        @SerializedName("min_amount_kopeks") val minAmountKopeks: Long = 0,
+        @SerializedName("max_amount_kopeks") val maxAmountKopeks: Long = 0,
+        @SerializedName("is_available") val isAvailable: Boolean = true,
+        @SerializedName("options") val options: List<PaymentOption>? = null,
+    )
+
+    data class TopUp(
+        @SerializedName("payment_id") val paymentId: String = "",
+        @SerializedName("payment_url") val paymentUrl: String = "",
+        @SerializedName("amount_kopeks") val amountKopeks: Long = 0,
+    )
+
+    /** Result of buying a tariff period from the balance. */
+    sealed interface PurchaseResult {
+        data object Done : PurchaseResult
+        /** Not enough balance; the bot saved a cart and buys automatically after a top-up. */
+        data class NeedTopUp(val missingKopeks: Long) : PurchaseResult
+    }
 
     data class ConnectionLink(
         @SerializedName("subscription_url") val subscriptionUrl: String? = null,
@@ -105,7 +172,11 @@ object CabinetApi {
     private fun errorDetail(r: Response): String {
         return try {
             gson.fromJson(r.body, JsonObject::class.java)?.get("detail")?.let {
-                if (it.isJsonPrimitive) it.asString else it.toString()
+                when {
+                    it.isJsonPrimitive -> it.asString
+                    it.isJsonObject && it.asJsonObject.has("message") -> it.asJsonObject.get("message").asString
+                    else -> it.toString()
+                }
             } ?: "HTTP ${r.code}"
         } catch (_: Exception) {
             "HTTP ${r.code}"
@@ -132,6 +203,11 @@ object CabinetApi {
             410 -> PollResult.Expired
             else -> PollResult.Done(parseOk(r))
         }
+    }
+
+    fun refresh(refreshToken: String): AuthResult {
+        val body = JsonObject().apply { addProperty("refresh_token", refreshToken) }
+        return parseOk(call("POST", "/auth/refresh", body))
     }
 
     // ---- OAuth: google, yandex ----
@@ -162,4 +238,47 @@ object CabinetApi {
 
     fun connectionLink(accessToken: String): ConnectionLink =
         parseOk(call("GET", "/subscription/connection-link", accessToken = accessToken))
+
+    // ---- Purchase ----
+
+    fun purchaseOptions(accessToken: String): PurchaseOptions =
+        parseOk(call("GET", "/subscription/purchase-options", accessToken = accessToken))
+
+    /** Buys [periodDays] of [tariffId] from the balance (tariffs sales mode). */
+    fun purchaseTariff(accessToken: String, tariffId: Int, periodDays: Int): PurchaseResult {
+        val body = JsonObject().apply {
+            addProperty("tariff_id", tariffId)
+            addProperty("period_days", periodDays)
+        }
+        val r = call("POST", "/subscription/purchase-tariff", body, accessToken)
+        if (r.code == 402) {
+            val missing = try {
+                gson.fromJson(r.body, JsonObject::class.java)
+                    ?.getAsJsonObject("detail")?.get("missing_amount")?.asLong ?: 0L
+            } catch (_: Exception) {
+                0L
+            }
+            return PurchaseResult.NeedTopUp(missing)
+        }
+        parseOk<JsonObject>(r)
+        return PurchaseResult.Done
+    }
+
+    fun paymentMethods(accessToken: String): List<PaymentMethod> {
+        val r = call("GET", "/balance/payment-methods", accessToken = accessToken)
+        if (r.code !in 200..299) {
+            LogUtil.w(AppConfig.TAG, "Cabinet API error ${r.code}: ${r.body.take(300)}")
+            throw ApiException(r.code, errorDetail(r))
+        }
+        return gson.fromJson(r.body, Array<PaymentMethod>::class.java)?.toList().orEmpty()
+    }
+
+    fun topUp(accessToken: String, amountKopeks: Long, method: String, option: String?): TopUp {
+        val body = JsonObject().apply {
+            addProperty("amount_kopeks", amountKopeks)
+            addProperty("payment_method", method)
+            if (!option.isNullOrEmpty()) addProperty("payment_option", option)
+        }
+        return parseOk(call("POST", "/balance/topup", body, accessToken))
+    }
 }

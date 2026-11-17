@@ -1,14 +1,18 @@
 package com.v2ray.ang.freedom
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,13 +20,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -51,9 +59,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Freedom VPN: sign in with Telegram, Google or Yandex through the Bedolaga cabinet API.
- * After sign-in the app gets the user's subscription (activating the trial for new users)
- * and imports it, so the user only has to press "connect".
+ * Freedom VPN: sign in / register with Telegram, Google or Yandex through the Bedolaga cabinet API,
+ * then the account screen: subscription status, free trial, buying or extending a subscription.
+ * An active subscription is imported into the app, so the user only has to press "connect".
  */
 class LoginActivity : BaseComponentActivity() {
 
@@ -62,23 +70,34 @@ class LoginActivity : BaseComponentActivity() {
         data object Starting : UiState
         data class WaitingTelegram(val botLink: String) : UiState
         data object WaitingBrowser : UiState
-        data object SettingUp : UiState
+        data class Busy(val textRes: Int) : UiState
         data class Error(val message: String) : UiState
-        data class TrialUnavailable(val reason: String?) : UiState
+        data class Account(val info: AccountManager.AccountInfo, val notice: String? = null) : UiState
+        data class Plans(val options: CabinetApi.PurchaseOptions, val info: AccountManager.AccountInfo) : UiState
+        data class PayMethods(
+            val tariff: CabinetApi.Tariff,
+            val period: CabinetApi.TariffPeriod,
+            val missingKopeks: Long,
+            val methods: List<CabinetApi.PaymentMethod>,
+            val info: AccountManager.AccountInfo,
+        ) : UiState
+        data class WaitingPayment(val paymentUrl: String, val previousEnd: String?, val info: AccountManager.AccountInfo) : UiState
     }
 
     private var state by mutableStateOf<UiState>(UiState.Idle)
-    private var loggedIn by mutableStateOf(false)
     private var telegramJob: Job? = null
+    private var paymentJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loggedIn = AccountManager.isLoggedIn()
         if (handleSetupIntent(intent)) return
         // Telegram login was started before the activity was recreated: keep waiting for it.
-        AccountManager.pendingTelegramToken()?.let { token ->
-            state = UiState.WaitingTelegram(botLink(token))
-            startTelegramPolling(token)
+        val pendingTg = AccountManager.pendingTelegramToken()
+        if (pendingTg != null && !AccountManager.isLoggedIn()) {
+            state = UiState.WaitingTelegram(botLink(FreedomConfig.BOT_USERNAME, pendingTg))
+            startTelegramPolling(pendingTg)
+        } else if (AccountManager.isLoggedIn()) {
+            loadAccount()
         }
     }
 
@@ -88,24 +107,25 @@ class LoginActivity : BaseComponentActivity() {
         handleSetupIntent(intent)
     }
 
-    /** OAuthCallbackActivity has signed in: fetch and import the subscription. */
+    /** OAuthCallbackActivity has signed in: continue with the subscription. */
     private fun handleSetupIntent(intent: Intent?): Boolean {
         if (intent?.getBooleanExtra(EXTRA_SETUP_AFTER_LOGIN, false) != true) return false
         intent.removeExtra(EXTRA_SETUP_AFTER_LOGIN)
-        loggedIn = AccountManager.isLoggedIn()
-        runSetup()
+        afterLogin()
         return true
     }
 
     override fun onResume() {
         super.onResume()
         // Coming back from the browser without the App Link firing: let the user retry.
-        if (state == UiState.WaitingBrowser && AccountManager.isLoggedIn().not()) {
+        if (state == UiState.WaitingBrowser && !AccountManager.isLoggedIn()) {
             lifecycleScope.launch {
                 delay(1500)
                 if (state == UiState.WaitingBrowser) state = UiState.Idle
             }
         }
+        // Back from the payment page: check right away.
+        (state as? UiState.WaitingPayment)?.let { checkPaymentNow(it) }
     }
 
     @Composable
@@ -116,152 +136,373 @@ class LoginActivity : BaseComponentActivity() {
                 .fillMaxSize()
                 .systemBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 28.dp, vertical = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
             Box(
                 modifier = Modifier
-                    .size(112.dp)
+                    .size(96.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF1565C0)),
+                    .background(Color(0xFF0E1626)),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
                     painter = painterResource(R.mipmap.ic_launcher_foreground),
                     contentDescription = null,
-                    modifier = Modifier.size(112.dp),
+                    modifier = Modifier.size(96.dp),
                 )
             }
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(16.dp))
             Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(8.dp))
 
-            if (loggedIn && current == UiState.Idle) {
-                AccountContent()
-            } else {
-                LoginContent(current)
+            when (current) {
+                is UiState.Account -> AccountContent(current)
+                is UiState.Plans -> PlansContent(current)
+                is UiState.PayMethods -> PayMethodsContent(current)
+                is UiState.WaitingPayment -> WaitingPaymentContent(current)
+                else -> LoginContent(current)
+            }
+        }
+    }
+
+    // ---- screens ----
+
+    @Composable
+    private fun Progress(text: String) {
+        Spacer(Modifier.height(12.dp))
+        CircularProgressIndicator()
+        Spacer(Modifier.height(12.dp))
+        Text(text, textAlign = TextAlign.Center)
+    }
+
+    @Composable
+    private fun LoginContent(current: UiState) {
+        Text(
+            stringResource(R.string.freedom_login_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(28.dp))
+
+        when (current) {
+            UiState.Starting -> Progress(stringResource(R.string.freedom_login_starting))
+            UiState.WaitingBrowser -> Progress(stringResource(R.string.freedom_login_waiting_browser))
+            is UiState.Busy -> Progress(stringResource(current.textRes))
+
+            is UiState.WaitingTelegram -> {
+                Progress(stringResource(R.string.freedom_login_waiting_telegram))
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = { openTelegram(current.botLink) }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.freedom_login_open_bot_again))
+                }
+                TextButton(onClick = { cancelTelegram() }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            }
+
+            else -> {
+                if (current is UiState.Error) {
+                    Text(
+                        stringResource(R.string.freedom_login_error, current.message),
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
+                if (AccountManager.isLoggedIn()) {
+                    Button(onClick = { loadAccount() }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.freedom_retry))
+                    }
+                    Spacer(Modifier.height(20.dp))
+                    TextButton(onClick = { logout() }) { Text(stringResource(R.string.freedom_account_logout)) }
+                    return
+                }
+                Button(onClick = { startTelegramLogin() }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.freedom_login_telegram))
+                }
+                Spacer(Modifier.height(10.dp))
+                OutlinedButton(
+                    onClick = { startOAuth(FreedomConfig.PROVIDER_GOOGLE) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.freedom_login_google))
+                }
+                Spacer(Modifier.height(10.dp))
+                OutlinedButton(
+                    onClick = { startOAuth(FreedomConfig.PROVIDER_YANDEX) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.freedom_login_yandex))
+                }
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    stringResource(R.string.freedom_login_new_users),
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(16.dp))
+                TextButton(onClick = { skipLogin() }) {
+                    Text(stringResource(R.string.freedom_login_have_link))
+                }
             }
         }
     }
 
     @Composable
-    private fun LoginContent(current: UiState) {
-            Text(
-                stringResource(R.string.freedom_login_subtitle),
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(Modifier.height(28.dp))
-
-            when (current) {
-                UiState.Starting, UiState.SettingUp, UiState.WaitingBrowser -> {
-                    CircularProgressIndicator()
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        stringResource(
-                            when (current) {
-                                UiState.SettingUp -> R.string.freedom_login_setting_up
-                                UiState.WaitingBrowser -> R.string.freedom_login_waiting_browser
-                                else -> R.string.freedom_login_starting
-                            }
-                        ),
-                        textAlign = TextAlign.Center,
-                    )
-                }
-
-                is UiState.WaitingTelegram -> {
-                    CircularProgressIndicator()
-                    Spacer(Modifier.height(12.dp))
-                    Text(stringResource(R.string.freedom_login_waiting_telegram), textAlign = TextAlign.Center)
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = { openUrl(current.botLink) }, modifier = Modifier.fillMaxWidth()) {
-                        Text(stringResource(R.string.freedom_login_open_bot_again))
-                    }
-                    TextButton(onClick = { cancelTelegram() }) {
-                        Text(stringResource(android.R.string.cancel))
-                    }
-                }
-
-                else -> {
-                    if (current is UiState.Error) {
-                        Text(
-                            stringResource(R.string.freedom_login_error, current.message),
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center,
-                        )
-                        Spacer(Modifier.height(16.dp))
-                    }
-                    if (current is UiState.TrialUnavailable) {
-                        Text(
-                            stringResource(R.string.freedom_login_trial_unavailable) +
-                                    (current.reason?.let { "\n($it)" } ?: ""),
-                            textAlign = TextAlign.Center,
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Button(onClick = { openUrl(FreedomConfig.BOT_URL) }, modifier = Modifier.fillMaxWidth()) {
-                            Text(stringResource(R.string.freedom_open_bot_pay))
-                        }
-                        Spacer(Modifier.height(16.dp))
-                    }
-                    Button(onClick = { startTelegramLogin() }, modifier = Modifier.fillMaxWidth()) {
-                        Text(stringResource(R.string.freedom_login_telegram))
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    OutlinedButton(
-                        onClick = { startOAuth(FreedomConfig.PROVIDER_GOOGLE) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.freedom_login_google))
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    OutlinedButton(
-                        onClick = { startOAuth(FreedomConfig.PROVIDER_YANDEX) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(stringResource(R.string.freedom_login_yandex))
-                    }
-                    Spacer(Modifier.height(20.dp))
-                    TextButton(onClick = { skipLogin() }) {
-                        Text(stringResource(R.string.freedom_login_have_link))
-                    }
-                }
-            }
+    private fun InfoCard(content: @Composable () -> Unit) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(Modifier.padding(16.dp)) { content() }
+        }
     }
 
     @Composable
-    private fun AccountContent() {
+    private fun SubscriptionCard(info: AccountManager.AccountInfo) {
+        val sub = info.subscription
+        InfoCard {
+            Text(stringResource(R.string.freedom_sub_title), style = MaterialTheme.typography.labelLarge)
+            Spacer(Modifier.height(6.dp))
+            if (sub == null || (!sub.isActive && sub.endDate == null)) {
+                Text(stringResource(R.string.freedom_sub_none), style = MaterialTheme.typography.titleMedium)
+                return@InfoCard
+            }
+            val title = when {
+                sub.isTrial -> stringResource(R.string.freedom_sub_trial)
+                !sub.tariffName.isNullOrEmpty() -> sub.tariffName.orEmpty()
+                else -> stringResource(R.string.freedom_sub_paid)
+            }
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(4.dp))
+            if (sub.isActive) {
+                val left = sub.timeLeftDisplay?.takeIf { it.isNotBlank() } ?: sub.daysLeft.toString()
+                Text(stringResource(R.string.freedom_sub_until, formatDate(sub.endDate), left))
+                val traffic = if (sub.trafficLimitGb > 0) {
+                    stringResource(R.string.freedom_sub_traffic, "%.1f".format(sub.trafficUsedGb), sub.trafficLimitGb)
+                } else {
+                    stringResource(R.string.freedom_sub_traffic_unlimited)
+                }
+                Text(traffic)
+                if (sub.deviceLimit > 0) Text(stringResource(R.string.freedom_sub_devices, sub.deviceLimit))
+            } else {
+                Text(
+                    stringResource(R.string.freedom_sub_expired, formatDate(sub.endDate)),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun AccountContent(current: UiState.Account) {
+        val info = current.info
         val method = AccountManager.loginMethod().orEmpty()
         Text(
             stringResource(R.string.freedom_account_signed_in, method),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(24.dp))
-        Button(onClick = { refreshSubscription() }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.freedom_account_refresh))
+        Spacer(Modifier.height(16.dp))
+        SubscriptionCard(info)
+        current.notice?.let {
+            Spacer(Modifier.height(10.dp))
+            Text(it, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
         }
-        Spacer(Modifier.height(10.dp))
-        OutlinedButton(onClick = { openUrl(FreedomConfig.BOT_URL) }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.freedom_open_bot_pay))
+        Spacer(Modifier.height(16.dp))
+
+        val trial = info.trial
+        if (info.hasActive) {
+            Button(onClick = { importAndOpenMain() }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.freedom_account_connect))
+            }
+            Spacer(Modifier.height(10.dp))
+        } else if (trial?.isAvailable == true && !trial.requiresPayment) {
+            Button(onClick = { startTrial() }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.freedom_trial_button, trial.durationDays))
+            }
+            val details = buildString {
+                append(
+                    if (trial.trafficLimitGb > 0) getString(R.string.freedom_trial_traffic, trial.trafficLimitGb)
+                    else getString(R.string.freedom_sub_traffic_unlimited)
+                )
+                if (trial.deviceLimit > 0) append(" · ").append(getString(R.string.freedom_sub_devices, trial.deviceLimit))
+            }
+            Text(details, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+            Spacer(Modifier.height(10.dp))
+        }
+
+        val buyText = if (info.subscription != null && !info.subscription.isTrial) {
+            R.string.freedom_buy_extend
+        } else {
+            R.string.freedom_buy
+        }
+        if (info.hasActive || trial?.isAvailable == true) {
+            OutlinedButton(onClick = { loadPlans(info) }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(buyText))
+            }
+        } else {
+            Button(onClick = { loadPlans(info) }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(buyText))
+            }
         }
         Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = { openUrl(FreedomConfig.SUPPORT_URL) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.freedom_support))
         }
-        Spacer(Modifier.height(20.dp))
-        TextButton(onClick = {
-            AccountManager.logout()
-            loggedIn = false
-            state = UiState.Idle
-        }) {
-            Text(stringResource(R.string.freedom_account_logout))
+        Spacer(Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = { loadAccount() }) { Text(stringResource(R.string.freedom_refresh)) }
+            Spacer(Modifier.width(8.dp))
+            TextButton(onClick = { logout() }) { Text(stringResource(R.string.freedom_account_logout)) }
         }
+    }
+
+    @Composable
+    private fun PlansContent(current: UiState.Plans) {
+        val opts = current.options
+        Text(stringResource(R.string.freedom_plans_title), style = MaterialTheme.typography.titleMedium)
+        opts.balanceLabel?.let {
+            Spacer(Modifier.height(4.dp))
+            Text(stringResource(R.string.freedom_balance, it), style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(Modifier.height(12.dp))
+        val tariffs = opts.tariffs.orEmpty().filter { it.isAvailable && !it.periods.isNullOrEmpty() }
+        if (opts.salesMode != "tariffs" || tariffs.isEmpty()) {
+            Text(stringResource(R.string.freedom_plans_in_bot), textAlign = TextAlign.Center)
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = { openTelegram(FreedomConfig.BOT_URL) }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.freedom_open_bot_pay))
+            }
+        } else {
+            tariffs.forEach { tariff ->
+                if (tariffs.size > 1 || !tariff.description.isNullOrBlank()) {
+                    Text(tariff.name.orEmpty(), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    tariff.description?.takeIf { it.isNotBlank() }?.let {
+                        Text(it, style = MaterialTheme.typography.bodySmall)
+                    }
+                    Spacer(Modifier.height(6.dp))
+                }
+                val features = buildList {
+                    tariff.trafficLimitLabel?.takeIf { it.isNotBlank() }?.let { add(it) }
+                    if (tariff.deviceLimit > 0) add(getString(R.string.freedom_sub_devices, tariff.deviceLimit))
+                }
+                if (features.isNotEmpty()) {
+                    Text(features.joinToString(" · "), style = MaterialTheme.typography.bodySmall)
+                    Spacer(Modifier.height(6.dp))
+                }
+                tariff.periods.orEmpty().forEach { period ->
+                    PeriodRow(period) { buy(tariff, period, current.info) }
+                    Spacer(Modifier.height(8.dp))
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+        TextButton(onClick = { state = UiState.Account(current.info) }) {
+            Text(stringResource(R.string.freedom_back))
+        }
+    }
+
+    @Composable
+    private fun PeriodRow(period: CabinetApi.TariffPeriod, onClick: () -> Unit) {
+        val highlighted = period.isHighlighted
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = if (highlighted) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .clickable(onClick = onClick),
+        ) {
+            Row(
+                Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        period.label ?: getString(R.string.freedom_days, period.days),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    period.pricePerMonthLabel?.takeIf { period.days > 31 }?.let {
+                        Text(stringResource(R.string.freedom_per_month, it), style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                Text(
+                    period.priceLabel ?: formatRub(period.priceKopeks),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun PayMethodsContent(current: UiState.PayMethods) {
+        Text(stringResource(R.string.freedom_pay_title), style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(4.dp))
+        Text(
+            stringResource(
+                R.string.freedom_pay_summary,
+                current.period.label ?: getString(R.string.freedom_days, current.period.days),
+                formatRub(current.missingKopeks),
+            ),
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(12.dp))
+        val methods = current.methods.filter { it.isAvailable }
+        if (methods.isEmpty()) {
+            Text(stringResource(R.string.freedom_pay_none), textAlign = TextAlign.Center)
+            Spacer(Modifier.height(12.dp))
+            Button(onClick = { openTelegram(FreedomConfig.BOT_URL) }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.freedom_open_bot_pay))
+            }
+        }
+        methods.forEach { method ->
+            val opts = method.options.orEmpty()
+            if (opts.isEmpty()) {
+                OutlinedButton(onClick = { pay(current, method, null) }, modifier = Modifier.fillMaxWidth()) {
+                    Text(method.name ?: method.id)
+                }
+                Spacer(Modifier.height(8.dp))
+            } else {
+                opts.forEach { opt ->
+                    OutlinedButton(onClick = { pay(current, method, opt.id) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(listOfNotNull(opt.name ?: method.name, opt.description?.takeIf { d -> d.isNotBlank() && d != opt.name })
+                            .joinToString(" — "))
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(stringResource(R.string.freedom_pay_hint), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+        TextButton(onClick = { loadPlans(current.info) }) { Text(stringResource(R.string.freedom_back)) }
+    }
+
+    @Composable
+    private fun WaitingPaymentContent(current: UiState.WaitingPayment) {
+        Progress(stringResource(R.string.freedom_pay_waiting))
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = { openUrl(current.paymentUrl) }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.freedom_pay_open_again))
+        }
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(onClick = { checkPaymentNow(current) }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.freedom_pay_check))
+        }
+        TextButton(onClick = {
+            paymentJob?.cancel()
+            state = UiState.Account(current.info)
+        }) { Text(stringResource(R.string.freedom_back)) }
     }
 
     // ---- Telegram ----
 
-    private fun botLink(token: String) = "${FreedomConfig.BOT_URL}?start=webauth_$token"
+    private fun botLink(bot: String, token: String) = "https://t.me/$bot?start=webauth_$token"
 
     private fun startTelegramLogin() {
         state = UiState.Starting
@@ -269,11 +510,11 @@ class LoginActivity : BaseComponentActivity() {
             try {
                 val dl = CabinetApi.requestDeepLink()
                 val bot = dl.botUsername.ifEmpty { FreedomConfig.BOT_USERNAME }
-                val link = "https://t.me/$bot?start=webauth_${dl.token}"
+                val link = botLink(bot, dl.token)
                 AccountManager.savePendingTelegram(dl.token, if (dl.expiresIn > 0) dl.expiresIn else 600)
                 withContext(Dispatchers.Main) {
                     state = UiState.WaitingTelegram(link)
-                    openUrl(link)
+                    openTelegram(link)
                     startTelegramPolling(dl.token)
                 }
             } catch (e: Exception) {
@@ -298,7 +539,7 @@ class LoginActivity : BaseComponentActivity() {
                     CabinetApi.PollResult.Pending
                 }
                 when (result) {
-                    CabinetApi.PollResult.Pending -> delay(2500)
+                    CabinetApi.PollResult.Pending -> delay(2000)
                     CabinetApi.PollResult.Expired -> {
                         AccountManager.clearPendingTelegram()
                         withContext(Dispatchers.Main) {
@@ -309,7 +550,8 @@ class LoginActivity : BaseComponentActivity() {
 
                     is CabinetApi.PollResult.Done -> {
                         AccountManager.clearPendingTelegram()
-                        onLoggedIn(result.auth, "Telegram")
+                        AccountManager.saveSession(result.auth, "Telegram")
+                        withContext(Dispatchers.Main) { afterLogin() }
                         return@launch
                     }
                 }
@@ -321,6 +563,29 @@ class LoginActivity : BaseComponentActivity() {
         telegramJob?.cancel()
         AccountManager.clearPendingTelegram()
         state = UiState.Idle
+    }
+
+    /**
+     * Opens the bot directly in the Telegram app (tg://), because t.me itself is often
+     * unreachable without a VPN; falls back to the https link (browser or another client).
+     */
+    private fun openTelegram(httpsLink: String) {
+        val uri = Uri.parse(httpsLink)
+        val bot = uri.pathSegments.firstOrNull()
+        val start = uri.getQueryParameter("start")
+        if (!bot.isNullOrEmpty()) {
+            val tg = buildString {
+                append("tg://resolve?domain=").append(bot)
+                if (!start.isNullOrEmpty()) append("&start=").append(start)
+            }
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(tg)))
+                return
+            } catch (_: ActivityNotFoundException) {
+                // Telegram is not installed: use the web link.
+            }
+        }
+        openUrl(httpsLink)
     }
 
     // ---- Google / Yandex ----
@@ -342,42 +607,170 @@ class LoginActivity : BaseComponentActivity() {
         }
     }
 
-    // ---- after login ----
+    // ---- account ----
 
-    /** Background thread. */
-    private suspend fun onLoggedIn(auth: CabinetApi.AuthResult, method: String) {
-        AccountManager.saveSession(auth, method)
-        withContext(Dispatchers.Main) {
-            loggedIn = true
-            runSetup()
-        }
-    }
-
-    private fun refreshSubscription() = runSetup()
-
-    /** Get the subscription (trial for new users) and import it. Main thread. */
-    private fun runSetup() {
-        val token = AccountManager.accessToken().orEmpty()
-        state = UiState.SettingUp
+    /** Signed in: import an active subscription and go to the servers, otherwise show the account. */
+    private fun afterLogin() {
+        state = UiState.Busy(R.string.freedom_login_setting_up)
         lifecycleScope.launch(Dispatchers.IO) {
-            val result = AccountManager.setupSubscription(applicationContext, token)
-            withContext(Dispatchers.Main) { handleSetupResult(result) }
-        }
-    }
-
-    private fun handleSetupResult(result: AccountManager.SetupResult) {
-        when (result) {
-            AccountManager.SetupResult.Imported -> openMain(this)
-            is AccountManager.SetupResult.TrialUnavailable -> state = UiState.TrialUnavailable(result.reason)
-            is AccountManager.SetupResult.Failed -> {
-                if (result.httpCode == 401) {
-                    // session expired: sign in again
-                    AccountManager.logout()
-                    loggedIn = false
+            val result = AccountManager.setupSubscription(applicationContext)
+            withContext(Dispatchers.Main) {
+                when (result) {
+                    AccountManager.SetupResult.Imported -> openMain(this@LoginActivity)
+                    AccountManager.SetupResult.NoSubscription -> loadAccount()
+                    is AccountManager.SetupResult.Failed -> handleFailure(result)
                 }
-                state = UiState.Error(result.message)
             }
         }
+    }
+
+    private fun loadAccount(notice: String? = null) {
+        state = UiState.Busy(R.string.freedom_loading)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val info = AccountManager.loadAccount()
+                withContext(Dispatchers.Main) { state = UiState.Account(info, notice) }
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Freedom: account load failed", e)
+                withContext(Dispatchers.Main) {
+                    handleFailure(AccountManager.SetupResult.Failed(e.message ?: "network error", (e as? CabinetApi.ApiException)?.code ?: 0))
+                }
+            }
+        }
+    }
+
+    private fun startTrial() {
+        state = UiState.Busy(R.string.freedom_trial_activating)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = AccountManager.activateTrial(applicationContext)
+            withContext(Dispatchers.Main) {
+                when (result) {
+                    AccountManager.SetupResult.Imported -> openMain(this@LoginActivity)
+                    AccountManager.SetupResult.NoSubscription -> loadAccount()
+                    is AccountManager.SetupResult.Failed -> {
+                        if (result.httpCode == 401) handleFailure(result) else loadAccount(result.message)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun importAndOpenMain() = afterLogin()
+
+    private fun handleFailure(result: AccountManager.SetupResult.Failed) {
+        if (result.httpCode == 401) {
+            // session expired and could not be refreshed: sign in again
+            AccountManager.logout()
+        }
+        state = UiState.Error(result.message)
+    }
+
+    // ---- purchase ----
+
+    private fun loadPlans(info: AccountManager.AccountInfo) {
+        state = UiState.Busy(R.string.freedom_loading)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val options = AccountManager.withToken { CabinetApi.purchaseOptions(it) }
+                withContext(Dispatchers.Main) { state = UiState.Plans(options, info) }
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Freedom: purchase options failed", e)
+                withContext(Dispatchers.Main) { state = UiState.Account(info, e.message) }
+            }
+        }
+    }
+
+    /** Buy from the balance; if it is not enough, the bot keeps the order and buys after a top-up. */
+    private fun buy(tariff: CabinetApi.Tariff, period: CabinetApi.TariffPeriod, info: AccountManager.AccountInfo) {
+        state = UiState.Busy(R.string.freedom_loading)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                when (val r = AccountManager.withToken { CabinetApi.purchaseTariff(it, tariff.id, period.days) }) {
+                    CabinetApi.PurchaseResult.Done -> withContext(Dispatchers.Main) { afterLogin() }
+                    is CabinetApi.PurchaseResult.NeedTopUp -> {
+                        val methods = AccountManager.withToken { CabinetApi.paymentMethods(it) }
+                        val missing = if (r.missingKopeks > 0) r.missingKopeks else period.priceKopeks
+                        withContext(Dispatchers.Main) {
+                            state = UiState.PayMethods(tariff, period, missing, methods, info)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Freedom: purchase failed", e)
+                withContext(Dispatchers.Main) { state = UiState.Account(info, e.message) }
+            }
+        }
+    }
+
+    private fun pay(current: UiState.PayMethods, method: CabinetApi.PaymentMethod, option: String?) {
+        val amount = current.missingKopeks
+            .coerceAtLeast(method.minAmountKopeks)
+            .let { if (method.maxAmountKopeks > 0) it.coerceAtMost(method.maxAmountKopeks) else it }
+        state = UiState.Busy(R.string.freedom_pay_creating)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val topUp = AccountManager.withToken { CabinetApi.topUp(it, amount, method.id, option) }
+                withContext(Dispatchers.Main) {
+                    val waiting = UiState.WaitingPayment(topUp.paymentUrl, current.info.subscription?.endDate, current.info)
+                    state = waiting
+                    openUrl(topUp.paymentUrl)
+                    startPaymentPolling(waiting)
+                }
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Freedom: top-up failed, method=${method.id}", e)
+                withContext(Dispatchers.Main) { state = UiState.Account(current.info, e.message) }
+            }
+        }
+    }
+
+    /** True when the subscription became active or got a new end date after the payment. */
+    private fun paymentArrived(waiting: UiState.WaitingPayment): Boolean {
+        val sub = AccountManager.withToken { CabinetApi.subscriptionStatus(it) }.subscription ?: return false
+        if (!sub.isActive) return false
+        val wasActive = waiting.info.subscription?.isActive == true
+        return !wasActive || sub.endDate != waiting.previousEnd || (waiting.info.subscription?.isTrial == true && !sub.isTrial)
+    }
+
+    private fun startPaymentPolling(waiting: UiState.WaitingPayment) {
+        paymentJob?.cancel()
+        paymentJob = lifecycleScope.launch(Dispatchers.IO) {
+            val until = System.currentTimeMillis() + PAYMENT_WAIT_MS
+            while (isActive && System.currentTimeMillis() < until) {
+                delay(5000)
+                val arrived = try {
+                    paymentArrived(waiting)
+                } catch (e: Exception) {
+                    LogUtil.w(AppConfig.TAG, "Freedom: payment check failed: ${e.message}")
+                    false
+                }
+                if (arrived) {
+                    withContext(Dispatchers.Main) { afterLogin() }
+                    return@launch
+                }
+            }
+        }
+    }
+
+    private fun checkPaymentNow(waiting: UiState.WaitingPayment) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val arrived = try {
+                paymentArrived(waiting)
+            } catch (_: Exception) {
+                false
+            }
+            if (arrived) {
+                paymentJob?.cancel()
+                withContext(Dispatchers.Main) { if (state is UiState.WaitingPayment) afterLogin() }
+            }
+        }
+    }
+
+    // ---- misc ----
+
+    private fun logout() {
+        paymentJob?.cancel()
+        AccountManager.logout()
+        state = UiState.Idle
     }
 
     private fun skipLogin() {
@@ -385,15 +778,30 @@ class LoginActivity : BaseComponentActivity() {
         openMain(this)
     }
 
+    private fun formatDate(iso: String?): String {
+        if (iso.isNullOrEmpty()) return "—"
+        // "2026-11-24T21:26:00+00:00" -> "24.11.2026"
+        val d = iso.take(10).split('-')
+        return if (d.size == 3) "${d[2]}.${d[1]}.${d[0]}" else iso
+    }
+
+    private fun formatRub(kopeks: Long): String {
+        val rub = kopeks / 100
+        val kop = kopeks % 100
+        return if (kop == 0L) "$rub ₽" else "$rub,${kop.toString().padStart(2, '0')} ₽"
+    }
+
     private fun openUrl(url: String) {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (e: Exception) {
-            LogUtil.e(AppConfig.TAG, "Freedom: cannot open $url", e)
+            LogUtil.e(AppConfig.TAG, "Freedom: cannot open link", e)
         }
     }
 
     companion object {
+        private const val PAYMENT_WAIT_MS = 30 * 60 * 1000L
+
         fun openMain(activity: android.app.Activity) {
             activity.startActivity(
                 Intent(activity, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

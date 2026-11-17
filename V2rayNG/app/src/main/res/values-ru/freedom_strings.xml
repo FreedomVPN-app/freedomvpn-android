@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Freedom VPN: экран входа -->
 <resources>
-    <string name="freedom_login_subtitle">Войдите — приложение само настроит подключение. Новым пользователям — бесплатный пробный период.</string>
+    <string name="freedom_login_subtitle">Войдите или зарегистрируйтесь — приложение само настроит подключение.</string>
     <string name="freedom_login_telegram">Войти через Telegram</string>
     <string name="freedom_login_google">Войти через Google</string>
     <string name="freedom_login_yandex">Войти через Яндекс</string>
@@ -9,16 +9,47 @@
     <string name="freedom_login_starting">Подключаемся…</string>
     <string name="freedom_login_setting_up">Настраиваем подключение…</string>
     <string name="freedom_login_waiting_browser">Завершите вход в браузере…</string>
-    <string name="freedom_login_waiting_telegram">Подтвердите вход в боте (кнопка «Да, войти») и вернитесь в приложение.\n\nЕсли бот просит сначала зарегистрироваться — нажмите «Старт», вернитесь и снова нажмите «Войти через Telegram».</string>
+    <string name="freedom_login_waiting_telegram">Подтвердите вход в боте (кнопка «Да, войти») и вернитесь в приложение.</string>
     <string name="freedom_login_open_bot_again">Открыть бота ещё раз</string>
     <string name="freedom_login_expired">Ссылка для входа устарела. Попробуйте ещё раз.</string>
     <string name="freedom_login_error">Не удалось войти: %1$s</string>
     <string name="freedom_login_failed">Не удалось войти</string>
-    <string name="freedom_login_trial_unavailable">Активной подписки нет, а пробный период недоступен.</string>
     <string name="freedom_open_bot_pay">Оплатить или продлить в боте</string>
     <string name="freedom_support">Поддержка</string>
     <string name="freedom_account_signed_in">Вы вошли через %1$s</string>
-    <string name="freedom_account_refresh">Обновить настройки подключения</string>
     <string name="freedom_account_logout">Выйти</string>
     <string name="freedom_account">Аккаунт</string>
+    <string name="freedom_login_new_users">Нет аккаунта? Он создастся сам при первом входе — сразу можно включить бесплатный пробный период.</string>
+    <string name="freedom_loading">Загружаем…</string>
+    <string name="freedom_retry">Повторить</string>
+    <string name="freedom_refresh">Обновить</string>
+    <string name="freedom_back">Назад</string>
+    <string name="freedom_sub_title">Подписка</string>
+    <string name="freedom_sub_none">Подписки нет</string>
+    <string name="freedom_sub_trial">Пробный период</string>
+    <string name="freedom_sub_paid">Подписка</string>
+    <string name="freedom_sub_until">Действует до %1$s (осталось %2$s)</string>
+    <string name="freedom_sub_expired">Закончилась %1$s</string>
+    <string name="freedom_sub_traffic">Трафик: %1$s из %2$d ГБ</string>
+    <string name="freedom_sub_traffic_unlimited">Трафик без ограничений</string>
+    <string name="freedom_sub_devices">Устройств: до %1$d</string>
+    <string name="freedom_account_connect">Подключиться</string>
+    <string name="freedom_trial_button">Попробовать бесплатно — %1$d дн.</string>
+    <string name="freedom_trial_traffic">%1$d ГБ трафика</string>
+    <string name="freedom_trial_activating">Включаем пробный период…</string>
+    <string name="freedom_buy">Купить подписку</string>
+    <string name="freedom_buy_extend">Продлить подписку</string>
+    <string name="freedom_plans_title">Выберите срок</string>
+    <string name="freedom_balance">На балансе: %1$s</string>
+    <string name="freedom_plans_in_bot">Покупка в приложении сейчас недоступна — оформите подписку в боте.</string>
+    <string name="freedom_days">%1$d дн.</string>
+    <string name="freedom_per_month">%1$s в месяц</string>
+    <string name="freedom_pay_title">Способ оплаты</string>
+    <string name="freedom_pay_summary">%1$s — к оплате %2$s</string>
+    <string name="freedom_pay_none">Нет доступных способов оплаты.</string>
+    <string name="freedom_pay_hint">После оплаты подписка включится сама — вернитесь в приложение.</string>
+    <string name="freedom_pay_creating">Создаём платёж…</string>
+    <string name="freedom_pay_waiting">Ждём оплату… Как только платёж пройдёт, подписка включится сама.</string>
+    <string name="freedom_pay_open_again">Открыть страницу оплаты</string>
+    <string name="freedom_pay_check">Я оплатил — проверить</string>
 </resources>

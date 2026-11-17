@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Freedom VPN: sign-in screen -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="freedom_login_subtitle">Sign in and the app will set up the connection for you. New users get a free trial.</string>
+    <string name="freedom_login_subtitle">Sign in or sign up and the app will set up the connection for you.</string>
     <string name="freedom_login_telegram">Sign in with Telegram</string>
     <string name="freedom_login_google">Sign in with Google</string>
     <string name="freedom_login_yandex">Sign in with Yandex</string>
@@ -9,16 +9,47 @@
     <string name="freedom_login_starting">Connecting…</string>
     <string name="freedom_login_setting_up">Setting up the connection…</string>
     <string name="freedom_login_waiting_browser">Finish signing in in the browser…</string>
-    <string name="freedom_login_waiting_telegram">Confirm the sign-in in the bot (press “Yes”) and come back.\n\nIf the bot asks you to register first, press “Start”, then come back and tap “Sign in with Telegram” again.</string>
+    <string name="freedom_login_waiting_telegram">Confirm the sign-in in the bot (press “Yes”) and come back to the app.</string>
     <string name="freedom_login_open_bot_again">Open the bot again</string>
     <string name="freedom_login_expired">The sign-in link has expired. Try again.</string>
     <string name="freedom_login_error">Could not sign in: %1$s</string>
     <string name="freedom_login_failed">Sign-in failed</string>
-    <string name="freedom_login_trial_unavailable">You have no active subscription and the free trial is not available.</string>
     <string name="freedom_open_bot_pay">Pay or extend in the bot</string>
     <string name="freedom_support">Support</string>
     <string name="freedom_account_signed_in">Signed in via %1$s</string>
-    <string name="freedom_account_refresh">Update connection settings</string>
     <string name="freedom_account_logout">Sign out</string>
     <string name="freedom_account">Account</string>
+    <string name="freedom_login_new_users">No account yet? It is created on your first sign-in, and you can start a free trial right away.</string>
+    <string name="freedom_loading">Loading…</string>
+    <string name="freedom_retry">Retry</string>
+    <string name="freedom_refresh">Refresh</string>
+    <string name="freedom_back">Back</string>
+    <string name="freedom_sub_title">Subscription</string>
+    <string name="freedom_sub_none">No subscription</string>
+    <string name="freedom_sub_trial">Free trial</string>
+    <string name="freedom_sub_paid">Subscription</string>
+    <string name="freedom_sub_until">Valid until %1$s (%2$s left)</string>
+    <string name="freedom_sub_expired">Expired %1$s</string>
+    <string name="freedom_sub_traffic">Traffic: %1$s of %2$d GB</string>
+    <string name="freedom_sub_traffic_unlimited">Unlimited traffic</string>
+    <string name="freedom_sub_devices">Up to %1$d devices</string>
+    <string name="freedom_account_connect">Connect</string>
+    <string name="freedom_trial_button">Try free for %1$d days</string>
+    <string name="freedom_trial_traffic">%1$d GB of traffic</string>
+    <string name="freedom_trial_activating">Starting the free trial…</string>
+    <string name="freedom_buy">Buy a subscription</string>
+    <string name="freedom_buy_extend">Extend the subscription</string>
+    <string name="freedom_plans_title">Choose a period</string>
+    <string name="freedom_balance">Balance: %1$s</string>
+    <string name="freedom_plans_in_bot">In-app purchase is not available right now. Please buy in the bot.</string>
+    <string name="freedom_days">%1$d days</string>
+    <string name="freedom_per_month">%1$s per month</string>
+    <string name="freedom_pay_title">Payment method</string>
+    <string name="freedom_pay_summary">%1$s — to pay %2$s</string>
+    <string name="freedom_pay_none">No payment methods available.</string>
+    <string name="freedom_pay_hint">After the payment the subscription turns on by itself — just come back to the app.</string>
+    <string name="freedom_pay_creating">Creating the payment…</string>
+    <string name="freedom_pay_waiting">Waiting for the payment… The subscription turns on as soon as it goes through.</string>
+    <string name="freedom_pay_open_again">Open the payment page</string>
+    <string name="freedom_pay_check">I have paid — check</string>
 </resources>
