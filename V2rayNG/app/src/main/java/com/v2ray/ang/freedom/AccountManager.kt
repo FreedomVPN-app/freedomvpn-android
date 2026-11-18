@@ -4,6 +4,7 @@ import android.content.Context
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.handler.AngConfigManager
 import com.v2ray.ang.handler.MmkvManager
+import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.handler.SubscriptionUpdater
 import com.v2ray.ang.util.LogUtil
 
@@ -188,7 +189,7 @@ object AccountManager {
             return SetupResult.Failed("subscription link is hidden or not ready")
         }
         MmkvManager.encodeSettings(KEY_SUB_URL, url)
-        return if (FreedomImporter.importSubscription(context, "$url#Freedom VPN")) {
+        return if (FreedomImporter.importSubscription(context, "$url#${FreedomImporter.SUBSCRIPTION_NAME}")) {
             SetupResult.Imported
         } else {
             SetupResult.Failed("import failed")
@@ -212,21 +213,29 @@ object FreedomImporter {
             count + countSub > 0
         }
 
-        val subId = MmkvManager.decodeSubscriptions()
-            .firstOrNull { it.subscription.url.substringBefore('#').trim() == baseUrl }
-            ?.guid
+        val subs = MmkvManager.decodeSubscriptions()
+        val subId = subs.firstOrNull { it.subscription.url.substringBefore('#').trim() == baseUrl }?.guid
         if (subId != null) {
-            selectFirstServerIfNeeded(subId)
+            // An earlier account's subscription (another sign-in) would show a second "Freedom VPN" tab.
+            subs.filter {
+                it.guid != subId && it.subscription.remarks == SUBSCRIPTION_NAME &&
+                    it.subscription.url.substringBefore('#').trim() != baseUrl
+            }.forEach { SettingsManager.removeSubscriptionWithDefault(it.guid) }
+            showSubscription(subId)
         }
         SubscriptionUpdater.sync(context.applicationContext, forceReschedule = true)
         return success
     }
 
-    private fun selectFirstServerIfNeeded(subId: String) {
+    /** Opens the account's tab on the main screen and selects its first server ("⚡ Авто") unless one of its servers is already selected. */
+    private fun showSubscription(subId: String) {
+        MmkvManager.encodeSettings(AppConfig.CACHE_SUBSCRIPTION_ID, subId)
+        val servers = MmkvManager.decodeServerList(subId)
         val selected = MmkvManager.getSelectServer()
-        val selectedIsValid = !selected.isNullOrEmpty() &&
-                MmkvManager.decodeAllServerList().contains(selected)
-        if (selectedIsValid) return
-        MmkvManager.decodeServerList(subId).firstOrNull()?.let { MmkvManager.setSelectServer(it) }
+        if (selected.isNullOrEmpty() || selected !in servers) {
+            servers.firstOrNull()?.let { MmkvManager.setSelectServer(it) }
+        }
     }
+
+    const val SUBSCRIPTION_NAME = "Freedom VPN"
 }

@@ -420,6 +420,17 @@ class MainViewModel(
 
     fun getSubscriptions(): List<SubscriptionCache> = dataSource.getSubscriptions()
 
+    /**
+     * Freedom VPN: hides the built-in empty "Default" group when there are other groups,
+     * so a user who only has the account subscription sees just that tab.
+     */
+    private fun visibleSubscriptions(subs: List<SubscriptionCache>): List<SubscriptionCache> {
+        if (subs.size < 2) return subs
+        return subs.filterNot {
+            it.guid == AppConfig.DEFAULT_SUBSCRIPTION_ID && dataSource.getServerGuidList(it.guid).isEmpty()
+        }
+    }
+
     private fun resolveSelectedGroup(groups: List<GroupMapItem>): String {
         val current = uiState.value.selectedGroupId
         val resolved = when {
@@ -455,7 +466,7 @@ class MainViewModel(
                 if (forceRefresh) {
                     cacheMutex.withLock { groupDataCache.clear() }
                 }
-                val groups = dataSource.getSubscriptions().map {
+                val groups = visibleSubscriptions(dataSource.getSubscriptions()).map {
                     GroupMapItem(
                         id = it.guid,
                         remarks = it.subscription.remarks,

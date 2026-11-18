@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Freedom VPN: экран входа -->
 <resources>
-    <string name="freedom_login_subtitle">Войдите или зарегистрируйтесь — приложение само настроит подключение.</string>
     <string name="freedom_login_telegram">Войти через Telegram</string>
     <string name="freedom_login_google">Войти через Google</string>
     <string name="freedom_login_yandex">Войти через Яндекс</string>
@@ -19,7 +18,6 @@
     <string name="freedom_account_signed_in">Вы вошли через %1$s</string>
     <string name="freedom_account_logout">Выйти</string>
     <string name="freedom_account">Аккаунт</string>
-    <string name="freedom_login_new_users">Нет аккаунта? Он создастся сам при первом входе — сразу можно включить бесплатный пробный период.</string>
     <string name="freedom_loading">Загружаем…</string>
     <string name="freedom_retry">Повторить</string>
     <string name="freedom_refresh">Обновить</string>
@@ -52,4 +50,16 @@
     <string name="freedom_pay_waiting">Ждём оплату… Как только платёж пройдёт, подписка включится сама.</string>
     <string name="freedom_pay_open_again">Открыть страницу оплаты</string>
     <string name="freedom_pay_check">Я оплатил — проверить</string>
+    <string name="freedom_welcome_subtitle">Быстрый и стабильный VPN. Настройка — в одно касание.</string>
+    <string name="freedom_welcome_new">Я новый пользователь</string>
+    <string name="freedom_welcome_new_hint">Регистрация за минуту и 7 дней бесплатно</string>
+    <string name="freedom_welcome_existing">У меня уже есть аккаунт</string>
+    <string name="freedom_register_title">Регистрация</string>
+    <string name="freedom_register_subtitle">Выберите, через что создать аккаунт. После регистрации сразу включится бесплатный пробный период.</string>
+    <string name="freedom_register_telegram">Продолжить с Telegram</string>
+    <string name="freedom_register_google">Продолжить с Google</string>
+    <string name="freedom_register_yandex">Продолжить с Яндексом</string>
+    <string name="freedom_signin_title">Вход</string>
+    <string name="freedom_signin_subtitle">Войдите тем же способом, что и при регистрации.</string>
+    <string name="freedom_signin_hint">Если вы пользовались ботом @Topfreedom_bot — выберите Telegram.</string>
 </resources>

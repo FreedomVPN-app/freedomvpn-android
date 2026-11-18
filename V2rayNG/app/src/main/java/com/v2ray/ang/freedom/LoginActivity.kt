@@ -66,7 +66,10 @@ import kotlinx.coroutines.withContext
 class LoginActivity : BaseComponentActivity() {
 
     private sealed interface UiState {
+        /** First screen: "I'm new" or "I already have an account". */
         data object Idle : UiState
+        /** Sign-in methods; [register] = the user said they are new. */
+        data class Methods(val register: Boolean) : UiState
         data object Starting : UiState
         data class WaitingTelegram(val botLink: String) : UiState
         data object WaitingBrowser : UiState
@@ -85,6 +88,8 @@ class LoginActivity : BaseComponentActivity() {
     }
 
     private var state by mutableStateOf<UiState>(UiState.Idle)
+    /** The user chose "I'm new": after signing in, start the free trial right away. */
+    private var registerFlow = false
     private var telegramJob: Job? = null
     private var paymentJob: Job? = null
 
@@ -121,7 +126,7 @@ class LoginActivity : BaseComponentActivity() {
         if (state == UiState.WaitingBrowser && !AccountManager.isLoggedIn()) {
             lifecycleScope.launch {
                 delay(1500)
-                if (state == UiState.WaitingBrowser) state = UiState.Idle
+                if (state == UiState.WaitingBrowser) state = UiState.Methods(registerFlow)
             }
         }
         // Back from the payment page: check right away.
@@ -179,13 +184,6 @@ class LoginActivity : BaseComponentActivity() {
 
     @Composable
     private fun LoginContent(current: UiState) {
-        Text(
-            stringResource(R.string.freedom_login_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(28.dp))
-
         when (current) {
             UiState.Starting -> Progress(stringResource(R.string.freedom_login_starting))
             UiState.WaitingBrowser -> Progress(stringResource(R.string.freedom_login_waiting_browser))
@@ -202,52 +200,109 @@ class LoginActivity : BaseComponentActivity() {
                 }
             }
 
-            else -> {
-                if (current is UiState.Error) {
-                    Text(
-                        stringResource(R.string.freedom_login_error, current.message),
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(Modifier.height(16.dp))
-                }
+            is UiState.Methods -> MethodsContent(current.register, null)
+            is UiState.Error -> {
                 if (AccountManager.isLoggedIn()) {
+                    ErrorText(current.message)
                     Button(onClick = { loadAccount() }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.freedom_retry))
                     }
                     Spacer(Modifier.height(20.dp))
                     TextButton(onClick = { logout() }) { Text(stringResource(R.string.freedom_account_logout)) }
-                    return
-                }
-                Button(onClick = { startTelegramLogin() }, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.freedom_login_telegram))
-                }
-                Spacer(Modifier.height(10.dp))
-                OutlinedButton(
-                    onClick = { startOAuth(FreedomConfig.PROVIDER_GOOGLE) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.freedom_login_google))
-                }
-                Spacer(Modifier.height(10.dp))
-                OutlinedButton(
-                    onClick = { startOAuth(FreedomConfig.PROVIDER_YANDEX) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.freedom_login_yandex))
-                }
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    stringResource(R.string.freedom_login_new_users),
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(Modifier.height(16.dp))
-                TextButton(onClick = { skipLogin() }) {
-                    Text(stringResource(R.string.freedom_login_have_link))
+                } else {
+                    MethodsContent(registerFlow, current.message)
                 }
             }
+
+            else -> WelcomeContent()
         }
+    }
+
+    @Composable
+    private fun ErrorText(message: String) {
+        Text(
+            stringResource(R.string.freedom_login_error, message),
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(16.dp))
+    }
+
+    @Composable
+    private fun WelcomeContent() {
+        Text(
+            stringResource(R.string.freedom_welcome_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(32.dp))
+        Button(
+            onClick = { registerFlow = true; state = UiState.Methods(register = true) },
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+        ) {
+            Text(stringResource(R.string.freedom_welcome_new))
+        }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            stringResource(R.string.freedom_welcome_new_hint),
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(16.dp))
+        OutlinedButton(
+            onClick = { registerFlow = false; state = UiState.Methods(register = false) },
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+        ) {
+            Text(stringResource(R.string.freedom_welcome_existing))
+        }
+        Spacer(Modifier.height(24.dp))
+        TextButton(onClick = { skipLogin() }) {
+            Text(stringResource(R.string.freedom_login_have_link))
+        }
+    }
+
+    @Composable
+    private fun MethodsContent(register: Boolean, error: String?) {
+        Text(
+            stringResource(if (register) R.string.freedom_register_title else R.string.freedom_signin_title),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            stringResource(if (register) R.string.freedom_register_subtitle else R.string.freedom_signin_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(24.dp))
+        error?.let { ErrorText(it) }
+        val tg = if (register) R.string.freedom_register_telegram else R.string.freedom_login_telegram
+        val google = if (register) R.string.freedom_register_google else R.string.freedom_login_google
+        val yandex = if (register) R.string.freedom_register_yandex else R.string.freedom_login_yandex
+        Button(onClick = { startTelegramLogin() }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(tg))
+        }
+        Spacer(Modifier.height(10.dp))
+        OutlinedButton(onClick = { startOAuth(FreedomConfig.PROVIDER_GOOGLE) }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(google))
+        }
+        Spacer(Modifier.height(10.dp))
+        OutlinedButton(onClick = { startOAuth(FreedomConfig.PROVIDER_YANDEX) }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(yandex))
+        }
+        if (!register) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(R.string.freedom_signin_hint),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(8.dp))
+            TextButton(onClick = { skipLogin() }) {
+                Text(stringResource(R.string.freedom_login_have_link))
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        TextButton(onClick = { state = UiState.Idle }) { Text(stringResource(R.string.freedom_back)) }
     }
 
     @Composable
@@ -562,7 +617,7 @@ class LoginActivity : BaseComponentActivity() {
     private fun cancelTelegram() {
         telegramJob?.cancel()
         AccountManager.clearPendingTelegram()
-        state = UiState.Idle
+        state = UiState.Methods(registerFlow)
     }
 
     /**
@@ -617,19 +672,28 @@ class LoginActivity : BaseComponentActivity() {
             withContext(Dispatchers.Main) {
                 when (result) {
                     AccountManager.SetupResult.Imported -> openMain(this@LoginActivity)
-                    AccountManager.SetupResult.NoSubscription -> loadAccount()
+                    AccountManager.SetupResult.NoSubscription -> loadAccount(autoTrial = registerFlow)
                     is AccountManager.SetupResult.Failed -> handleFailure(result)
                 }
             }
         }
     }
 
-    private fun loadAccount(notice: String? = null) {
+    /** [autoTrial]: the user registered just now — start the free trial without an extra tap. */
+    private fun loadAccount(notice: String? = null, autoTrial: Boolean = false) {
         state = UiState.Busy(R.string.freedom_loading)
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val info = AccountManager.loadAccount()
-                withContext(Dispatchers.Main) { state = UiState.Account(info, notice) }
+                val trial = info.trial
+                withContext(Dispatchers.Main) {
+                    registerFlow = false
+                    if (autoTrial && !info.hasActive && trial?.isAvailable == true && !trial.requiresPayment) {
+                        startTrial()
+                    } else {
+                        state = UiState.Account(info, notice)
+                    }
+                }
             } catch (e: Exception) {
                 LogUtil.e(AppConfig.TAG, "Freedom: account load failed", e)
                 withContext(Dispatchers.Main) {

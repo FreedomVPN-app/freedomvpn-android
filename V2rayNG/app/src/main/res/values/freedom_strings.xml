@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Freedom VPN: sign-in screen -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="freedom_login_subtitle">Sign in or sign up and the app will set up the connection for you.</string>
     <string name="freedom_login_telegram">Sign in with Telegram</string>
     <string name="freedom_login_google">Sign in with Google</string>
     <string name="freedom_login_yandex">Sign in with Yandex</string>
@@ -19,7 +18,6 @@
     <string name="freedom_account_signed_in">Signed in via %1$s</string>
     <string name="freedom_account_logout">Sign out</string>
     <string name="freedom_account">Account</string>
-    <string name="freedom_login_new_users">No account yet? It is created on your first sign-in, and you can start a free trial right away.</string>
     <string name="freedom_loading">Loading…</string>
     <string name="freedom_retry">Retry</string>
     <string name="freedom_refresh">Refresh</string>
@@ -52,4 +50,16 @@
     <string name="freedom_pay_waiting">Waiting for the payment… The subscription turns on as soon as it goes through.</string>
     <string name="freedom_pay_open_again">Open the payment page</string>
     <string name="freedom_pay_check">I have paid — check</string>
+    <string name="freedom_welcome_subtitle">Fast and stable VPN, set up with one tap.</string>
+    <string name="freedom_welcome_new">I\'m a new user</string>
+    <string name="freedom_welcome_new_hint">Sign up in a minute and get 7 days free</string>
+    <string name="freedom_welcome_existing">I already have an account</string>
+    <string name="freedom_register_title">Sign up</string>
+    <string name="freedom_register_subtitle">Choose how to create your account. The free trial starts right after you sign up.</string>
+    <string name="freedom_register_telegram">Continue with Telegram</string>
+    <string name="freedom_register_google">Continue with Google</string>
+    <string name="freedom_register_yandex">Continue with Yandex</string>
+    <string name="freedom_signin_title">Sign in</string>
+    <string name="freedom_signin_subtitle">Sign in the same way you signed up.</string>
+    <string name="freedom_signin_hint">If you used the @Topfreedom_bot bot, choose Telegram.</string>
 </resources>
