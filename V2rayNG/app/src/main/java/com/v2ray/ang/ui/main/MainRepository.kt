@@ -122,6 +122,13 @@ class MainRepository(
     override fun getDoubleColumnDisplay(): Boolean =
         MmkvManager.decodeSettingsBool(AppConfig.PREF_DOUBLE_COLUMN_DISPLAY, false)
 
+    override fun getSimpleMode(): Boolean =
+        MmkvManager.decodeSettingsBool(AppConfig.PREF_FREEDOM_SIMPLE_MODE, true)
+
+    override fun setSimpleMode(enabled: Boolean) {
+        MmkvManager.encodeSettings(AppConfig.PREF_FREEDOM_SIMPLE_MODE, enabled)
+    }
+
     override fun isGroupAllDisplayEnabled(): Boolean =
         MmkvManager.decodeSettingsBool(AppConfig.PREF_GROUP_ALL_DISPLAY)
 

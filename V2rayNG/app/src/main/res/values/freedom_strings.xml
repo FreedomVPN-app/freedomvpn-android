@@ -62,4 +62,15 @@
     <string name="freedom_signin_title">Sign in</string>
     <string name="freedom_signin_subtitle">Sign in the same way you signed up.</string>
     <string name="freedom_signin_hint">If you used the @Topfreedom_bot bot, choose Telegram.</string>
+    <string name="freedom_home_connect">Connect</string>
+    <string name="freedom_home_disconnect">Disconnect</string>
+    <string name="freedom_home_connected">Protected</string>
+    <string name="freedom_home_disconnected">Not connected</string>
+    <string name="freedom_home_server">Server</string>
+    <string name="freedom_home_choose_server">Choose a server</string>
+    <string name="freedom_home_delay">%1$d ms</string>
+    <string name="freedom_home_account">Account and subscription</string>
+    <string name="freedom_home_no_subscription">No subscription connected yet</string>
+    <string name="freedom_home_all_servers">All servers</string>
+    <string name="freedom_home_simple">Home screen</string>
 </resources>

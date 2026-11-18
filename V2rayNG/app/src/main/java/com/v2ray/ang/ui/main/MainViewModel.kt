@@ -81,6 +81,7 @@ class MainViewModel(
         MainUiState(
             selectedGroupId = dataSource.getSelectedSubscriptionId(),
             selectedGuid = dataSource.getSelectServer(),
+            simpleMode = dataSource.getSimpleMode(),
             confirmRemove = dataSource.getConfirmRemove(),
             doubleColumnDisplay = dataSource.getDoubleColumnDisplay()
         )
@@ -276,6 +277,10 @@ class MainViewModel(
     fun onAction(action: MainAction) {
         when (action) {
             MainAction.Initialize -> initialize()
+            is MainAction.SetSimpleMode -> {
+                dataSource.setSimpleMode(action.enabled)
+                _uiState.update { it.copy(simpleMode = action.enabled) }
+            }
             MainAction.RefreshGroups -> setupGroupTab(forceRefresh = true)
             MainAction.TestAllServers -> testAllRealPing(true)
             MainAction.TestRealAllServers -> testAllRealPing()

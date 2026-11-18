@@ -62,4 +62,15 @@
     <string name="freedom_signin_title">Вход</string>
     <string name="freedom_signin_subtitle">Войдите тем же способом, что и при регистрации.</string>
     <string name="freedom_signin_hint">Если вы пользовались ботом @Topfreedom_bot — выберите Telegram.</string>
+    <string name="freedom_home_connect">Подключить</string>
+    <string name="freedom_home_disconnect">Отключить</string>
+    <string name="freedom_home_connected">Защищено</string>
+    <string name="freedom_home_disconnected">Не подключено</string>
+    <string name="freedom_home_server">Сервер</string>
+    <string name="freedom_home_choose_server">Выберите сервер</string>
+    <string name="freedom_home_delay">%1$d мс</string>
+    <string name="freedom_home_account">Аккаунт и подписка</string>
+    <string name="freedom_home_no_subscription">Подписка ещё не подключена</string>
+    <string name="freedom_home_all_servers">Все серверы</string>
+    <string name="freedom_home_simple">Главный экран</string>
 </resources>

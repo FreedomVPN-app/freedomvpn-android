@@ -161,7 +161,13 @@ fun MainScreen(
         Scaffold(
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
             topBar = {
-                MainTopBar(
+                if (uiState.simpleMode) {
+                    SimpleTopBar(
+                        isLoading = isLoading,
+                        onMenuClick = { scope.launch { drawerState.open() } },
+                        onShowServers = { onAction(MainAction.SetSimpleMode(false)) },
+                    )
+                } else MainTopBar(
                     isLoading = isLoading,
                     showSearch = showSearch,
                     searchQuery = searchQuery,
@@ -195,6 +201,17 @@ fun MainScreen(
             },
             floatingActionButton = {},
         ) { innerPadding ->
+            if (uiState.simpleMode) {
+                MainHome(
+                    mainViewModel = mainViewModel,
+                    uiState = uiState,
+                    displayText = displayText,
+                    onAction = onAction,
+                    onNavigate = onNavigate,
+                    contentPadding = innerPadding,
+                )
+                return@Scaffold
+            }
             val layoutDirection = LocalLayoutDirection.current
             val bottomBarHeight = with(LocalDensity.current) { bottomBarHeightPx.toDp() }
 

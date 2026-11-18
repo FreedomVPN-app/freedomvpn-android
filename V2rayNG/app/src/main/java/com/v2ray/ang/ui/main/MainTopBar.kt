@@ -69,6 +69,10 @@ fun MainTopBar(
         },
         actions = {
             if (!showSearch) {
+                // Freedom VPN: back to the simple home screen
+                IconButton(onClick = { onAction(MainAction.SetSimpleMode(true)) }) {
+                    Icon(painterResource(R.drawable.ic_freedom_home_24dp), contentDescription = stringResource(R.string.freedom_home_simple))
+                }
                 IconButton(onClick = { onSearchToggle(true) }) {
                     Icon(painterResource(R.drawable.ic_search_24dp), contentDescription = stringResource(R.string.acc_search))
                 }
@@ -114,5 +118,29 @@ fun MainTopBar(
                 }
             }
         }
+    )
+}
+
+/** Freedom VPN: top bar of the simple home screen. */
+@Composable
+fun SimpleTopBar(
+    isLoading: Boolean,
+    onMenuClick: () -> Unit,
+    onShowServers: () -> Unit,
+) {
+    AppTopBar(
+        title = stringResource(R.string.app_name),
+        onBackClick = {},
+        isLoading = isLoading,
+        navigationIcon = {
+            IconButton(onClick = onMenuClick) {
+                Icon(painterResource(R.drawable.ic_menu_24dp), contentDescription = stringResource(R.string.acc_open_menu))
+            }
+        },
+        actions = {
+            IconButton(onClick = onShowServers) {
+                Icon(painterResource(R.drawable.ic_freedom_list_24dp), contentDescription = stringResource(R.string.freedom_home_all_servers))
+            }
+        },
     )
 }

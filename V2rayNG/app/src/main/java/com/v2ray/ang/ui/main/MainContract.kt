@@ -26,6 +26,8 @@ data class MainUiState(
     val locateTarget: LocateTarget? = null,
     val confirmRemove: Boolean = false,
     val doubleColumnDisplay: Boolean = false,
+    /** Freedom VPN: simple home screen (connect button + server picker) instead of the server list. */
+    val simpleMode: Boolean = true,
     val shareQRCodeBitmap: android.graphics.Bitmap? = null
 )
 
@@ -69,4 +71,7 @@ sealed interface MainAction {
     data class ImportBatchConfig(val configText: String) : MainAction
 
     data object LocateHandled : MainAction
+
+    /** Freedom VPN: switch between the simple home screen and the full server list. */
+    data class SetSimpleMode(val enabled: Boolean) : MainAction
 }

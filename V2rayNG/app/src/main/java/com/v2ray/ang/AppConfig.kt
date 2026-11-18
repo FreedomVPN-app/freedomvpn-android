@@ -53,6 +53,8 @@ object AppConfig {
     const val SUBSCRIPTION_MIN_INTERVAL_MINUTES = 15L
     const val PREF_SPEED_ENABLED = "pref_speed_enabled"
     const val PREF_CONFIRM_REMOVE = "pref_confirm_remove"
+    /** Freedom VPN: simple home screen on the main activity (default on). */
+    const val PREF_FREEDOM_SIMPLE_MODE = "pref_freedom_simple_mode"
     const val PREF_DOUBLE_COLUMN_DISPLAY = "pref_double_column_display"
     const val PREF_GROUP_ALL_DISPLAY = "pref_group_all_display"
     const val PREF_LANGUAGE = "pref_language"
