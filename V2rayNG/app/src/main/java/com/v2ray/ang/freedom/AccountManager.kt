@@ -60,6 +60,9 @@ object AccountManager {
         return block(auth.accessToken)
     }
 
+    /** URL of the subscription imported from the account, if any. */
+    fun subscriptionUrl(): String? = MmkvManager.decodeSettingsString(KEY_SUB_URL)
+
     fun logout() {
         listOf(KEY_ACCESS, KEY_REFRESH, KEY_LOGIN_METHOD).forEach { MmkvManager.encodeSettings(it, null as String?) }
     }

@@ -73,4 +73,14 @@
     <string name="freedom_home_no_subscription">No subscription connected yet</string>
     <string name="freedom_home_all_servers">All servers</string>
     <string name="freedom_home_simple">Home screen</string>
+    <string name="freedom_home_test">Test speed</string>
+    <string name="freedom_home_no_connection">no connection</string>
+    <string name="freedom_expiry_channel">Subscription</string>
+    <string name="freedom_expiry_title">Your subscription ends soon</string>
+    <string name="freedom_expiry_title_ended">Your subscription has ended</string>
+    <string name="freedom_expiry_text_ended">The VPN no longer works. Extend the subscription in the app — it takes a minute.</string>
+    <plurals name="freedom_expiry_text">
+        <item quantity="one">%1$d day left. Extend the subscription so the VPN keeps working.</item>
+        <item quantity="other">%1$d days left. Extend the subscription so the VPN keeps working.</item>
+    </plurals>
 </resources>

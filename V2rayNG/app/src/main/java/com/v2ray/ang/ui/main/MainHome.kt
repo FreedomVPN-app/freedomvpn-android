@@ -31,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.v2ray.ang.R
 
@@ -118,6 +120,7 @@ internal fun MainHome(
         ServerSelector(
             title = selected?.remarks ?: stringResource(R.string.freedom_home_choose_server),
             delay = selected?.testDelayMillis ?: 0L,
+            testing = uiState.isTesting,
             enabled = rows.isNotEmpty(),
             onClick = { showPicker = true },
         )
@@ -138,6 +141,8 @@ internal fun MainHome(
         ServerPickerDialog(
             rows = groupState.rows,
             selectedGuid = uiState.selectedGuid,
+            testing = uiState.isTesting,
+            onTest = { onAction(MainAction.TestRealAllServers) },
             onSelect = { guid ->
                 showPicker = false
                 onAction(MainAction.SelectServer(guid))
@@ -199,7 +204,8 @@ private fun ConnectButton(isRunning: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ServerSelector(title: String, delay: Long, enabled: Boolean, onClick: () -> Unit) {
+private fun ServerSelector(title: String, delay: Long, testing: Boolean, enabled: Boolean, onClick: () -> Unit) {
+    val (flag, name) = splitServerName(title)
     val label = stringResource(R.string.freedom_home_server)
     Surface(
         onClick = onClick,
@@ -215,22 +221,21 @@ private fun ServerSelector(title: String, delay: Long, enabled: Boolean, onClick
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (flag != null) {
+                Text(flag, fontSize = 28.sp)
+                Spacer(Modifier.size(12.dp))
+            }
             Column(Modifier.weight(1f)) {
                 Text(label, style = MaterialTheme.typography.labelMedium)
                 Text(
-                    title,
+                    name,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            if (delay > 0) {
-                Text(
-                    stringResource(R.string.freedom_home_delay, delay),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Spacer(Modifier.size(8.dp))
-            }
+            DelayLabel(delay, testing)
+            Spacer(Modifier.size(8.dp))
             Icon(painterResource(R.drawable.ic_expand_more_24dp), contentDescription = null)
         }
     }
@@ -240,9 +245,15 @@ private fun ServerSelector(title: String, delay: Long, enabled: Boolean, onClick
 private fun ServerPickerDialog(
     rows: List<ServerRowUiModel>,
     selectedGuid: String?,
+    testing: Boolean,
+    onTest: () -> Unit,
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    // Measure every server once when the list opens (results stay until the next test).
+    LaunchedEffect(Unit) {
+        if (!testing && rows.isNotEmpty() && rows.all { it.testDelayMillis == 0L }) onTest()
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.freedom_home_choose_server)) },
@@ -263,25 +274,70 @@ private fun ServerPickerDialog(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         RadioButton(selected = isSelected, onClick = null)
+                        val (flag, name) = splitServerName(row.remarks)
+                        Text(flag ?: "", fontSize = 22.sp, modifier = Modifier.size(width = 32.dp, height = 30.dp))
                         Text(
-                            row.remarks,
+                            name,
                             modifier = Modifier.weight(1f),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
-                        if (row.testDelayMillis > 0) {
-                            Text(
-                                stringResource(R.string.freedom_home_delay, row.testDelayMillis),
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
+                        DelayLabel(row.testDelayMillis, testing)
                     }
                 }
             }
         },
-        confirmButton = {},
+        confirmButton = {
+            TextButton(onClick = onTest, enabled = !testing) {
+                Text(stringResource(R.string.freedom_home_test))
+            }
+        },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
         },
     )
+}
+
+/** Measured delay: green / amber / red by speed, "no connection" on failure, "…" while testing. */
+@Composable
+private fun DelayLabel(delay: Long, testing: Boolean) {
+    val text: String
+    val color: Color
+    when {
+        delay > 0 -> {
+            text = stringResource(R.string.freedom_home_delay, delay)
+            color = when {
+                delay < 300 -> Color(0xFF2E9E6A)
+                delay < 800 -> Color(0xFFC9900A)
+                else -> Color(0xFFD9534F)
+            }
+        }
+        delay < 0 -> {
+            text = stringResource(R.string.freedom_home_no_connection)
+            color = MaterialTheme.colorScheme.error
+        }
+        testing -> {
+            text = "…"
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        else -> return
+    }
+    Text(text, color = color, style = MaterialTheme.typography.bodySmall)
+}
+
+/**
+ * Splits a server name like "🇳🇱 Netherlands" or "⚡ Авто" into its leading emoji (shown large)
+ * and the rest. Returns null for the emoji when the name starts with a letter or digit.
+ */
+internal fun splitServerName(remarks: String): Pair<String?, String> {
+    val trimmed = remarks.trim()
+    if (trimmed.isEmpty()) return null to remarks
+    val first = trimmed.codePointAt(0)
+    if (Character.isLetterOrDigit(first) || first == '['.code || first == '('.code) return null to trimmed
+    val space = trimmed.indexOf(' ')
+    if (space <= 0) return null to trimmed
+    val head = trimmed.substring(0, space)
+    if (head.any { Character.isLetterOrDigit(it) }) return null to trimmed
+    val rest = trimmed.substring(space + 1).trim()
+    return if (rest.isEmpty()) null to trimmed else head to rest
 }

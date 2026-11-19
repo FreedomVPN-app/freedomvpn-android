@@ -124,6 +124,15 @@ jobs:
       run: |
         echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ${{ runner.temp }}/freedomvpn.jks
 
+    - name: Unit tests (Freedom VPN code)
+      run: |
+        cd ${{ github.workspace }}/V2rayNG
+        echo "sdk.dir=${ANDROID_HOME}" > local.properties
+        chmod 755 gradlew
+        ./gradlew :app:testPlaystoreDebugUnitTest \
+          --tests 'com.v2ray.ang.freedom.*' \
+          --tests 'com.v2ray.ang.ui.main.ServerNameSplitTest'
+
     - name: Build APK
       run: |
         cd ${{ github.workspace }}/V2rayNG

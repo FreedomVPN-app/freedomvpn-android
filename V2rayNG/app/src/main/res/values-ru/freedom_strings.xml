@@ -73,4 +73,16 @@
     <string name="freedom_home_no_subscription">Подписка ещё не подключена</string>
     <string name="freedom_home_all_servers">Все серверы</string>
     <string name="freedom_home_simple">Главный экран</string>
+    <string name="freedom_home_test">Проверить скорость</string>
+    <string name="freedom_home_no_connection">нет связи</string>
+    <string name="freedom_expiry_channel">Подписка</string>
+    <string name="freedom_expiry_title">Подписка скоро закончится</string>
+    <string name="freedom_expiry_title_ended">Подписка закончилась</string>
+    <string name="freedom_expiry_text_ended">VPN больше не работает. Продлите подписку в приложении — это займёт минуту.</string>
+    <plurals name="freedom_expiry_text">
+        <item quantity="one">Остался %1$d день. Продлите подписку, чтобы VPN не отключился.</item>
+        <item quantity="few">Осталось %1$d дня. Продлите подписку, чтобы VPN не отключился.</item>
+        <item quantity="many">Осталось %1$d дней. Продлите подписку, чтобы VPN не отключился.</item>
+        <item quantity="other">Осталось %1$d дня. Продлите подписку, чтобы VPN не отключился.</item>
+    </plurals>
 </resources>
