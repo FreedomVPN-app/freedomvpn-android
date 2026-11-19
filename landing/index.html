@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freedom VPN для Android — скачать</title>
+<meta name="description" content="Официальное приложение Freedom VPN для Android: одна кнопка подключения, автоматический выбор сервера, работа при белых списках.">
+<meta name="theme-color" content="#F7E7CE">
+<style>
+  :root{
+    --bg:#F7E7CE; --card:#FEF9F0; --card2:#FCF4E6; --text:#1F1A12; --muted:#746343;
+    --line:#DFCEB3; --accent:#073C92; --accent-soft:#E9EFFA; --ok:#15803D;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0C111F; --card:#0F172A; --card2:#151E33; --text:#F1F5F9; --muted:#94A3B8;
+      --line:#2A3346; --accent:#72A5F8; --accent-soft:#13284D; --ok:#4ADE80; }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:Manrope,"Segoe UI",Roboto,system-ui,-apple-system,sans-serif;
+    line-height:1.5; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:28px 18px 48px}
+  header{text-align:center;margin-bottom:22px}
+  .logo{width:88px;height:88px;border-radius:24px;display:block;margin:0 auto 14px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 6px;font-weight:800}
+  .lead{color:var(--muted);margin:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;margin-top:16px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+    padding:16px 18px;border-radius:14px;font-weight:700;font-size:17px;text-decoration:none;border:0;cursor:pointer}
+  .btn-main{background:var(--accent);color:#fff}
+  @media (prefers-color-scheme: dark){ .btn-main{color:#0A1A3A} }
+  .btn-alt{background:transparent;color:var(--accent);border:1px solid var(--line);margin-top:10px;font-size:15px;padding:13px}
+  .meta{color:var(--muted);font-size:13px;text-align:center;margin-top:10px}
+  .feats{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+  .feats li{display:flex;gap:12px;align-items:flex-start}
+  .dot{flex:0 0 28px;height:28px;border-radius:9px;background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+  h2{font-size:19px;margin:0 0 12px}
+  ol.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+  ol.steps li{counter-increment:s;position:relative;padding:0 0 14px 42px}
+  ol.steps li:last-child{padding-bottom:0}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;
+    background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+  @media (prefers-color-scheme: dark){ ol.steps li::before{color:#0A1A3A} }
+  b{font-weight:700}
+  details{background:var(--card2);border-radius:14px;padding:12px 14px;margin-top:10px}
+  summary{cursor:pointer;font-weight:700}
+  details p{margin:8px 0 0;color:var(--muted)}
+  .links{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+  .links a{color:var(--accent);text-decoration:none;font-weight:600;padding:8px 12px;border:1px solid var(--line);border-radius:999px;font-size:14px}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="logo" viewBox="0 0 50 50" aria-hidden="true">
+      <rect width="50" height="50" rx="12" fill="#0E1626"/>
+      <circle cx="24" cy="26" r="13" fill="none" stroke="#2FE0C4" stroke-width="2"/>
+      <ellipse cx="24" cy="26" rx="6" ry="13" fill="none" stroke="#2FE0C4" stroke-opacity=".6" stroke-width="1.5"/>
+      <path d="M11 26h26M13 19.5h22M13 32.5h22" stroke="#2FE0C4" stroke-opacity=".6" stroke-width="1.5"/>
+      <path d="M12 33C22 30 30 22 38 11c-3 11-11 19-26 22z" fill="#2FE0C4"/>
+    </svg>
+    <h1>Freedom VPN для Android</h1>
+    <p class="lead">Быстрый и стабильный VPN. Настройка — в одно касание.</p>
+  </header>
+
+  <div class="card">
+    <a class="btn btn-main" id="apk" href="https://github.com/uvarovskiyaa-lgtm/freedomvpn-android/releases/latest/download/FreedomVPN.apk">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+      Скачать APK
+    </a>
+    <p class="meta" id="ver">Android 7.0 и новее · бесплатно</p>
+  </div>
+
+  <div class="card">
+    <ul class="feats">
+      <li><span class="dot">1</span><div><b>Одна кнопка.</b> Вошли через Telegram, Google или Яндекс — и подключились.</div></li>
+      <li><span class="dot">⚡</span><div><b>Авто — лучший сервер.</b> Приложение само выбирает быстрый и рабочий сервер.</div></li>
+      <li><span class="dot">📶</span><div><b>Белые списки.</b> Работает, даже когда мобильный интернет ограничен.</div></li>
+      <li><span class="dot">7</span><div><b>7 дней бесплатно</b> для новых пользователей, оплата подписки прямо в приложении.</div></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Как установить</h2>
+    <ol class="steps">
+      <li>Нажмите <b>«Скачать APK»</b> и дождитесь загрузки файла <b>FreedomVPN.apk</b>.</li>
+      <li>Откройте файл — из уведомления о загрузке или из папки «Загрузки».</li>
+      <li>Если Android напишет, что установка из этого источника запрещена, нажмите <b>«Настройки»</b>, включите <b>«Разрешить из этого источника»</b> и вернитесь назад.</li>
+      <li>Нажмите <b>«Установить»</b>, затем <b>«Открыть»</b>.</li>
+      <li>Выберите <b>«Я новый пользователь»</b> или <b>«У меня уже есть аккаунт»</b> и войдите. Серверы добавятся сами — нажмите большую кнопку <b>«Подключить»</b> и разрешите VPN.</li>
+    </ol>
+    <details>
+      <summary>Google Play Защита предупреждает о приложении</summary>
+      <p>Приложения, скачанные не из Google Play, проверяются отдельно. Нажмите «Подробнее» → «Всё равно установить». Freedom VPN подписан одним ключом, и обновления ставятся поверх без потери настроек.</p>
+    </details>
+    <details>
+      <summary>Xiaomi, Redmi, POCO</summary>
+      <p>Если установка не начинается, откройте «Настройки» → «Приложения» → «Особые разрешения» → «Неизвестные источники» и разрешите браузеру или «Файлам» устанавливать приложения.</p>
+    </details>
+    <details>
+      <summary>Samsung</summary>
+      <p>«Настройки» → «Приложения» → меню «⋮» → «Особые права доступа» → «Установка неизвестных приложений» → выберите браузер и включите разрешение.</p>
+    </details>
+    <details>
+      <summary>У меня уже есть подписка</summary>
+      <p>Войдите в приложении тем же способом, что и в боте или личном кабинете, — подписка подтянется сама. Или откройте страницу своей подписки и нажмите «Подключиться» в блоке Freedom VPN.</p>
+    </details>
+  </div>
+
+  <div class="links">
+    <a href="https://t.me/Topfreedom_bot">Бот @Topfreedom_bot</a>
+    <a href="https://cabinet.topfreedomhub.com/">Личный кабинет</a>
+    <a href="https://t.me/topfreedom_support_bot">Поддержка</a>
+  </div>
+
+  <footer>Freedom VPN · исходный код: <a style="color:inherit" href="https://github.com/uvarovskiyaa-lgtm/freedomvpn-android">GitHub</a> (на основе v2rayNG, GPL-3.0)</footer>
+</div>
+<script>
+  // Show the current version and size from the latest GitHub release (if reachable).
+  fetch('https://api.github.com/repos/uvarovskiyaa-lgtm/freedomvpn-android/releases/latest')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rel) {
+      if (!rel) return;
+      var apk = (rel.assets || []).filter(function (a) { return a.name === 'FreedomVPN.apk'; })[0];
+      var parts = ['Версия ' + String(rel.tag_name || '').replace(/^v/, '')];
+      if (apk) parts.push(Math.round(apk.size / 1048576) + ' МБ');
+      parts.push('Android 7.0 и новее');
+      document.getElementById('ver').textContent = parts.join(' · ');
+    })
+    .catch(function () {});
+</script>
+</body>
+</html>
