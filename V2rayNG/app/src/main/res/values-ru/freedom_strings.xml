@@ -112,4 +112,7 @@
     <string name="freedom_offer_push_text_until">Персональное предложение на подписку до %2$s. Нажмите, чтобы получить скидку %1$d%%.</string>
     <string name="freedom_cabinet">Личный кабинет</string>
     <string name="freedom_cabinet_hint">Откроется в браузере. Войдите тем же способом, что и в приложении: там рефералы, баланс, история платежей и подарки.</string>
+    <string name="freedom_home_no_servers">Серверов пока нет</string>
+    <string name="freedom_home_no_servers_hint">Откройте «Аккаунт и подписка» и нажмите «Подключиться» или «Попробовать бесплатно» — серверы загрузятся сами.</string>
+    <string name="freedom_home_update">Обновить список серверов</string>
 </resources>

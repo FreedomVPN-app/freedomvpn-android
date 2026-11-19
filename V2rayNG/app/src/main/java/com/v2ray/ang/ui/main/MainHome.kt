@@ -97,6 +97,19 @@ internal fun MainHome(
             )
         }
 
+        if (rows.isEmpty()) {
+            // The group has no servers yet (link not imported, or the subscription update failed).
+            EmptyGroup(
+                onUpdate = { onAction(MainAction.UpdateGroupSubscription(group.id)) },
+                onNavigate = onNavigate,
+            )
+            return@Column
+        }
+        // Nothing selected in this group yet: take its first server ("⚡ Авто").
+        LaunchedEffect(group.id, rows.firstOrNull()?.guid, selected == null) {
+            if (selected == null) rows.firstOrNull()?.let { onAction(MainAction.SelectServer(it.guid)) }
+        }
+
         Spacer(Modifier.height(36.dp))
         ConnectButton(isRunning = uiState.isRunning, onClick = { onAction(MainAction.ToggleService) })
         Spacer(Modifier.height(16.dp))
@@ -161,6 +174,30 @@ private fun NoSubscription(onNavigate: (MainDestination) -> Unit) {
     Spacer(Modifier.height(16.dp))
     Button(onClick = { onNavigate(MainDestination.Promotion) }, modifier = Modifier.fillMaxWidth()) {
         Text(stringResource(R.string.freedom_home_account))
+    }
+}
+
+@Composable
+private fun EmptyGroup(onUpdate: () -> Unit, onNavigate: (MainDestination) -> Unit) {
+    Spacer(Modifier.height(48.dp))
+    Text(
+        stringResource(R.string.freedom_home_no_servers),
+        style = MaterialTheme.typography.titleMedium,
+        textAlign = TextAlign.Center,
+    )
+    Spacer(Modifier.height(8.dp))
+    Text(
+        stringResource(R.string.freedom_home_no_servers_hint),
+        style = MaterialTheme.typography.bodyMedium,
+        textAlign = TextAlign.Center,
+    )
+    Spacer(Modifier.height(20.dp))
+    Button(onClick = { onNavigate(MainDestination.Promotion) }, modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.freedom_home_account))
+    }
+    Spacer(Modifier.height(10.dp))
+    OutlinedButton(onClick = onUpdate, modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.freedom_home_update))
     }
 }
 

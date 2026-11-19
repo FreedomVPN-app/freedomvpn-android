@@ -23,7 +23,6 @@ object AccountManager {
     private const val KEY_OAUTH_PROVIDER = "freedom_oauth_provider"
     private const val KEY_OAUTH_STATE = "freedom_oauth_state"
     private const val KEY_OAUTH_TIME = "freedom_oauth_time"
-    private const val KEY_LOGIN_SKIPPED = "freedom_login_skipped"
 
     private const val OAUTH_STATE_TTL_MS = 15 * 60 * 1000L
 
@@ -68,14 +67,21 @@ object AccountManager {
     }
 
     /** True if the first-start login screen should be shown. */
+    /**
+     * Welcome / sign-in screen on start: signed out and no servers at all. The built-in empty
+     * Default subscription does not count, and "I have a link" only skips it while servers exist.
+     */
     fun shouldShowLogin(): Boolean {
-        if (isLoggedIn()) return false
-        if (MmkvManager.decodeSettingsBool(KEY_LOGIN_SKIPPED, false)) return false
-        return MmkvManager.decodeSubscriptions().isEmpty() && MmkvManager.decodeAllServerList().isEmpty()
+        if (isLoggedIn() || skippedThisRun) return false
+        return MmkvManager.decodeAllServerList().isEmpty()
     }
 
+    /** "I have a link": stay on the main screen until the app is restarted. */
+    @Volatile
+    private var skippedThisRun = false
+
     fun markLoginSkipped() {
-        MmkvManager.encodeSettings(KEY_LOGIN_SKIPPED, true)
+        skippedThisRun = true
     }
 
     // ---- pending Telegram login (survives activity recreation) ----
