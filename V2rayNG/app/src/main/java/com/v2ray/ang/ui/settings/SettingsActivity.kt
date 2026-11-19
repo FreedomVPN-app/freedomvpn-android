@@ -89,7 +89,8 @@ class SettingsActivity : BaseComponentActivity() {
             viewModel = viewModel,
             onBackClick = { finish() },
             onModeHelpClicked = { Utils.openUri(this, AppConfig.APP_WIKI_MODE) },
-            onSystemVpnSettingsClicked = ::openSystemVpnSettings
+            onSystemVpnSettingsClicked = ::openSystemVpnSettings,
+            onOpenScreen = { screen -> startActivity(Intent(this, screen)) },
         )
     }
 }
@@ -100,11 +101,14 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onBackClick: () -> Unit,
     onModeHelpClicked: () -> Unit,
-    onSystemVpnSettingsClicked: () -> Unit
+    onSystemVpnSettingsClicked: () -> Unit,
+    /** Freedom VPN: opens Subscriptions / Routing / Geo databases (moved here from the drawer). */
+    onOpenScreen: (Class<*>) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val systemVpnSettingsAvailable by viewModel.systemVpnSettingsAvailable.collectAsStateWithLifecycle()
+    var expertExpanded by rememberSaveable { mutableStateOf(true) }
     var uiSettingsExpanded by rememberSaveable { mutableStateOf(true) }
     var vpnSettingsExpanded by rememberSaveable { mutableStateOf(true) }
     var coreSettingsExpanded by rememberSaveable { mutableStateOf(true) }
@@ -235,6 +239,30 @@ fun SettingsScreen(
                 .verticalScrollbar(scrollState)
                 .verticalScroll(scrollState)
         ) {
+            // Freedom VPN: screens for experienced users, moved here from the side menu
+            CollapsiblePreferenceGroupHeader(
+                title = stringResource(R.string.freedom_drawer_advanced),
+                expanded = expertExpanded,
+                onExpandedChange = { expertExpanded = it }
+            )
+            if (expertExpanded) {
+                SettingsMenuItem(
+                    title = stringResource(R.string.title_sub_setting),
+                    subtitle = stringResource(R.string.freedom_settings_subscriptions_hint),
+                    onClick = { onOpenScreen(com.v2ray.ang.ui.subscription.SubSettingActivity::class.java) }
+                )
+                SettingsMenuItem(
+                    title = stringResource(R.string.routing_settings_title),
+                    subtitle = stringResource(R.string.freedom_settings_routing_hint),
+                    onClick = { onOpenScreen(com.v2ray.ang.ui.routing.RoutingSettingActivity::class.java) }
+                )
+                SettingsMenuItem(
+                    title = stringResource(R.string.title_user_asset_setting),
+                    subtitle = stringResource(R.string.freedom_settings_geo_hint),
+                    onClick = { onOpenScreen(com.v2ray.ang.ui.userasset.UserAssetActivity::class.java) }
+                )
+            }
+
             CollapsiblePreferenceGroupHeader(
                 title = stringResource(R.string.title_ui_settings),
                 expanded = uiSettingsExpanded,

@@ -45,16 +45,12 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
     About(R.drawable.ic_about_24dp, R.string.title_about)
 }
 
-/** Freedom VPN: drawer sections — account, everyday settings, advanced (with a header), service. */
+/** Freedom VPN: drawer sections — account, everyday settings, service. Subscriptions, routing and geo databases are in Settings ("Advanced"). */
 private data class DrawerSection(@StringRes val headerRes: Int?, val items: List<MainDestination>)
 
 private val drawerSections = listOf(
     DrawerSection(null, listOf(MainDestination.Promotion, MainDestination.Cabinet)),
     DrawerSection(null, listOf(MainDestination.PerAppProxy, MainDestination.Settings)),
-    DrawerSection(
-        R.string.freedom_drawer_advanced,
-        listOf(MainDestination.Subscriptions, MainDestination.Routing, MainDestination.UserAssets),
-    ),
     DrawerSection(
         null,
         listOf(MainDestination.Logcat, MainDestination.BackupRestore, MainDestination.CheckUpdate, MainDestination.About),

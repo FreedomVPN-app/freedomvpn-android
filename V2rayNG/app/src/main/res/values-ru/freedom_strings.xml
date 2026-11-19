@@ -116,4 +116,7 @@
     <string name="freedom_home_no_servers_hint">Откройте «Аккаунт и подписка» и нажмите «Подключиться» или «Попробовать бесплатно» — серверы загрузятся сами.</string>
     <string name="freedom_home_update">Обновить список серверов</string>
     <string name="freedom_drawer_advanced">Для опытных</string>
+    <string name="freedom_settings_subscriptions_hint">Ссылки на подписки и как часто они обновляются. Подписка Freedom VPN настраивается сама.</string>
+    <string name="freedom_settings_routing_hint">Что идёт напрямую, а что через VPN. Действует только на серверы, добавленные вручную: у серверов Freedom VPN правила уже заданы.</string>
+    <string name="freedom_settings_geo_hint">Списки российских сайтов и адресов для маршрутизации (RoscomVPN). Обновляются сами раз в неделю.</string>
 </resources>

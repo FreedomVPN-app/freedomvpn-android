@@ -114,4 +114,7 @@
     <string name="freedom_home_no_servers_hint">Open “Account and subscription” and tap “Connect” or “Try free” — the servers load by themselves.</string>
     <string name="freedom_home_update">Update the server list</string>
     <string name="freedom_drawer_advanced">Advanced</string>
+    <string name="freedom_settings_subscriptions_hint">Subscription links and how often they update. The Freedom VPN subscription is set up automatically.</string>
+    <string name="freedom_settings_routing_hint">What goes direct and what goes through the VPN. Applies only to servers added by hand: Freedom VPN servers bring their own rules.</string>
+    <string name="freedom_settings_geo_hint">Lists of Russian sites and addresses for routing (RoscomVPN). Updated automatically every week.</string>
 </resources>
