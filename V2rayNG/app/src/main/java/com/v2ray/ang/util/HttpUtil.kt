@@ -3,6 +3,7 @@ package com.v2ray.ang.util
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.AppConfig.LOOPBACK
 import com.v2ray.ang.dto.UrlContentRequest
+import com.v2ray.ang.freedom.DeviceId
 import okhttp3.Credentials
 import okhttp3.Headers
 import okhttp3.OkHttpClient
@@ -168,6 +169,10 @@ object HttpUtil {
 
             applyEmbeddedBasicAuthHeader(currentUrl, requestBuilder)
 
+            // Freedom VPN: HWID headers for the panel's device limit; the subscription's own headers below override them.
+            for ((key, value) in DeviceId.subscriptionHeaders(currentUrl)) {
+                requestBuilder.header(key, value)
+            }
 
             val headersMap = JsonUtil.parseHeadersToMap(request.requestHeaders)
             for ((key, value) in headersMap) {
