@@ -72,7 +72,7 @@
     <string name="freedom_home_account">Account and subscription</string>
     <string name="freedom_home_no_subscription">No subscription connected yet</string>
     <string name="freedom_home_all_servers">All servers</string>
-    <string name="freedom_home_simple">Home screen</string>
+    <string name="freedom_home_simple">Back to the connect button</string>
     <string name="freedom_home_test">Test speed</string>
     <string name="freedom_home_no_connection">no connection</string>
     <string name="freedom_expiry_channel">Subscription</string>
@@ -109,7 +109,7 @@
     <string name="freedom_offer_push_text">A personal offer on your Freedom VPN subscription. Tap to get the discount.</string>
     <string name="freedom_offer_push_text_until">A personal subscription offer until %2$s. Tap to get your %1$d%% discount.</string>
     <string name="freedom_cabinet">Personal cabinet</string>
-    <string name="freedom_cabinet_hint">Opens in the browser. Sign in the same way as in the app: referrals, balance, payment history and gifts are there.</string>
+    <string name="freedom_cabinet_hint">Opens right in the app, already signed in: referrals, balance, payment history and gifts.</string>
     <string name="freedom_home_no_servers">No servers yet</string>
     <string name="freedom_home_no_servers_hint">Open “Account and subscription” and tap “Connect” or “Try free” — the servers load by themselves.</string>
     <string name="freedom_home_update">Update the server list</string>

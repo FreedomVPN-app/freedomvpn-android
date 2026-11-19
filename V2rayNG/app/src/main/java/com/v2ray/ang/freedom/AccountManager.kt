@@ -34,6 +34,13 @@ object AccountManager {
 
     fun accessToken(): String? = MmkvManager.decodeSettingsString(KEY_ACCESS)
 
+    fun refreshToken(): String? = MmkvManager.decodeSettingsString(KEY_REFRESH)
+
+    /** The web cabinet (CabinetActivity) rotated the session: keep the newest refresh token. */
+    fun updateRefreshToken(token: String) {
+        if (isLoggedIn() && token != refreshToken()) MmkvManager.encodeSettings(KEY_REFRESH, token)
+    }
+
     fun saveSession(auth: CabinetApi.AuthResult, method: String) {
         MmkvManager.encodeSettings(KEY_ACCESS, auth.accessToken)
         MmkvManager.encodeSettings(KEY_REFRESH, auth.refreshToken)

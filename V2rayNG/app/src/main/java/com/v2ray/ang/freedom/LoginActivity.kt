@@ -436,7 +436,7 @@ class LoginActivity : BaseComponentActivity() {
             Text(stringResource(R.string.freedom_support))
         }
         Spacer(Modifier.height(10.dp))
-        OutlinedButton(onClick = { openUrl(FreedomConfig.CABINET_URL) }, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = { startActivity(CabinetActivity.intent(this@LoginActivity)) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.freedom_cabinet))
         }
         Text(

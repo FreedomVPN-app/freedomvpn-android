@@ -38,9 +38,20 @@ class OAuthCallbackActivity : BaseComponentActivity() {
         val stateParam = uri?.getQueryParameter("state")
         val provider = AccountManager.matchPendingOAuth(stateParam)
 
-        if (uri == null || provider == null) {
-            uri?.let { forwardToBrowser(it) }
+        if (uri == null) {
             finish()
+            return
+        }
+        if (provider == null) {
+            // Sign-in started in the web cabinet in a browser on this phone. Handing the URL back to
+            // the browser opens a new tab that has lost the cabinet's sign-in state ("OAuth session
+            // is not for account linking"), so finish the sign-in here and show the cabinet in the app.
+            if (code.isNullOrEmpty() || stateParam.isNullOrEmpty()) {
+                forwardToBrowser(uri)
+                finish()
+                return
+            }
+            finishForeignSignIn(uri, code, stateParam)
             return
         }
         if (code.isNullOrEmpty()) {
@@ -77,6 +88,31 @@ class OAuthCallbackActivity : BaseComponentActivity() {
                         .putExtra(LoginActivity.EXTRA_SETUP_AFTER_LOGIN, ok)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 )
+                finish()
+            }
+        }
+    }
+
+    /** The state belongs to the server either way; the provider is unknown, so try both. */
+    private fun finishForeignSignIn(uri: Uri, code: String, state: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            var signedIn = false
+            for (provider in listOf(FreedomConfig.PROVIDER_GOOGLE, FreedomConfig.PROVIDER_YANDEX)) {
+                try {
+                    val auth = CabinetApi.oauthCallback(provider, code, state, uri.getQueryParameter("device_id"))
+                    AccountManager.saveSession(auth, if (provider == FreedomConfig.PROVIDER_GOOGLE) "Google" else "Яндекс")
+                    signedIn = true
+                    break
+                } catch (e: Exception) {
+                    LogUtil.w(AppConfig.TAG, "Freedom: browser sign-in via $provider not accepted: ${e.message}")
+                }
+            }
+            withContext(Dispatchers.Main) {
+                if (signedIn) {
+                    startActivity(CabinetActivity.intent(this@OAuthCallbackActivity))
+                } else {
+                    forwardToBrowser(uri)
+                }
                 finish()
             }
         }

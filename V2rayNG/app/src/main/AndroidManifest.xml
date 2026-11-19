@@ -200,6 +200,10 @@
             android:name=".freedom.LoginActivity"
             android:exported="false"
             android:launchMode="singleTop" />
+        <!-- Freedom VPN: web cabinet in a WebView, signed in with the app session -->
+        <activity
+            android:name=".freedom.CabinetActivity"
+            android:exported="false" />
         <!-- Freedom VPN: Google / Yandex return here. Host = CABINET_HOST in FreedomConfig.kt;
              needs https://<host>/.well-known/assetlinks.json with the signing key fingerprint. -->
         <activity

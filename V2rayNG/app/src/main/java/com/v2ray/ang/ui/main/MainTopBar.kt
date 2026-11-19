@@ -37,7 +37,9 @@ fun MainTopBar(
     onSearchToggle: (Boolean) -> Unit,
     onMenuClick: () -> Unit,
     onAction: (MainAction) -> Unit,
-    onMoreMenuAction: (MainMoreMenuAction) -> Unit
+    onMoreMenuAction: (MainMoreMenuAction) -> Unit,
+    /** Freedom VPN: shown from the simple home screen — back arrow returns there. */
+    onBackToHome: (() -> Unit)? = null,
 ) {
     var showImportMenu by remember { mutableStateOf(false) }
     var showMenu by remember { mutableStateOf(false) }
@@ -48,7 +50,7 @@ fun MainTopBar(
     val maxMenuHeight = LocalConfiguration.current.screenHeightDp.dp - statusBarHeight - navBarHeight - 20.dp
 
     AppTopBar(
-        title = stringResource(R.string.title_server),
+        title = stringResource(if (onBackToHome != null) R.string.freedom_home_all_servers else R.string.title_server),
         onBackClick = {},
         isLoading = isLoading,
         isSearchActive = showSearch,
@@ -61,6 +63,10 @@ fun MainTopBar(
                 IconButton(onClick = onSearchClose) {
                     Icon(painterResource(R.drawable.ic_arrow_back_24dp), contentDescription = stringResource(R.string.acc_back))
                 }
+            } else if (onBackToHome != null) {
+                IconButton(onClick = onBackToHome) {
+                    Icon(painterResource(R.drawable.ic_arrow_back_24dp), contentDescription = stringResource(R.string.freedom_home_simple))
+                }
             } else {
                 IconButton(onClick = onMenuClick) {
                     Icon(painterResource(R.drawable.ic_menu_24dp), contentDescription = stringResource(R.string.acc_open_menu))
@@ -69,10 +75,6 @@ fun MainTopBar(
         },
         actions = {
             if (!showSearch) {
-                // Freedom VPN: back to the simple home screen
-                IconButton(onClick = { onAction(MainAction.SetSimpleMode(true)) }) {
-                    Icon(painterResource(R.drawable.ic_freedom_home_24dp), contentDescription = stringResource(R.string.freedom_home_simple))
-                }
                 IconButton(onClick = { onSearchToggle(true) }) {
                     Icon(painterResource(R.drawable.ic_search_24dp), contentDescription = stringResource(R.string.acc_search))
                 }

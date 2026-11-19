@@ -1,5 +1,6 @@
 package com.v2ray.ang.ui.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -146,6 +147,9 @@ fun MainScreen(
         QRCodeDialog(bitmap = shareQRCodeBitmap, onDismiss = { onAction(MainAction.DismissQRCodeDialog) })
     }
 
+    // Freedom VPN: system Back on the full server list returns to the simple home screen
+    BackHandler(enabled = !uiState.simpleMode) { onAction(MainAction.SetSimpleMode(true)) }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -168,6 +172,7 @@ fun MainScreen(
                         onShowServers = { onAction(MainAction.SetSimpleMode(false)) },
                     )
                 } else MainTopBar(
+                    onBackToHome = { onAction(MainAction.SetSimpleMode(true)) },
                     isLoading = isLoading,
                     showSearch = showSearch,
                     searchQuery = searchQuery,

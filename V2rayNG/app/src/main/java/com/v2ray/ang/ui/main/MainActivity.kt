@@ -174,7 +174,11 @@ class MainActivity : HelperBaseComponentActivity() {
             MainDestination.BackupRestore -> Intent(this, BackupActivity::class.java)
             MainDestination.About -> Intent(this, AboutActivity::class.java)
             MainDestination.Cabinet -> {
-                Utils.openUri(this, com.v2ray.ang.freedom.FreedomConfig.CABINET_URL)
+                // Signed in: the cabinet inside the app with the same session; otherwise sign in first.
+                startActivity(
+                    if (com.v2ray.ang.freedom.AccountManager.isLoggedIn()) com.v2ray.ang.freedom.CabinetActivity.intent(this)
+                    else com.v2ray.ang.freedom.LoginActivity.intent(this)
+                )
                 return
             }
             MainDestination.Promotion -> {
