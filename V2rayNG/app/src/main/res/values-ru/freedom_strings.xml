@@ -119,4 +119,8 @@
     <string name="freedom_settings_subscriptions_hint">Ссылки на подписки и как часто они обновляются. Подписка Freedom VPN настраивается сама.</string>
     <string name="freedom_settings_routing_hint">Что идёт напрямую, а что через VPN. Действует только на серверы, добавленные вручную: у серверов Freedom VPN правила уже заданы.</string>
     <string name="freedom_settings_geo_hint">Списки российских сайтов и адресов для маршрутизации (RoscomVPN). Обновляются сами раз в неделю.</string>
+    <string name="freedom_promo_card_title">Попробуйте Freedom VPN</string>
+    <string name="freedom_promo_card_text">7 дней бесплатно: автовыбор лучшего сервера, работа при отключениях мобильного интернета («белые списки») и YouTube без рекламы.</string>
+    <string name="freedom_promo_card_try">Попробовать бесплатно</string>
+    <string name="freedom_promo_card_later">Не сейчас</string>
 </resources>

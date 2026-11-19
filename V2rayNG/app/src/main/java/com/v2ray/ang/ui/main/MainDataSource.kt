@@ -23,6 +23,8 @@ interface MainDataSource : Closeable {
     fun isGroupAllDisplayEnabled(): Boolean
     fun getSimpleMode(): Boolean
     fun setSimpleMode(enabled: Boolean)
+    fun shouldShowFreedomPromo(): Boolean
+    fun dismissFreedomPromo()
 
     fun getString(resId: Int): String
     fun getString(resId: Int, vararg formatArgs: Any): String

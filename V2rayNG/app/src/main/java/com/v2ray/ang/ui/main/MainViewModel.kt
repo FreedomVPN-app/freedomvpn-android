@@ -277,6 +277,10 @@ class MainViewModel(
     fun onAction(action: MainAction) {
         when (action) {
             MainAction.Initialize -> initialize()
+            MainAction.DismissFreedomPromo -> {
+                _uiState.update { it.copy(showFreedomPromo = false) }
+                viewModelScope.launch(Dispatchers.IO) { dataSource.dismissFreedomPromo() }
+            }
             is MainAction.SetSimpleMode -> {
                 dataSource.setSimpleMode(action.enabled)
                 _uiState.update { it.copy(simpleMode = action.enabled) }
@@ -491,6 +495,7 @@ class MainViewModel(
                         groups = groups,
                         selectedGroupId = selectedGroup,
                         selectedGuid = dataSource.getSelectServer(),
+                        showFreedomPromo = dataSource.shouldShowFreedomPromo(),
                     )
                 }
                 groups.forEach { mutableServerGroupState(it.id) }

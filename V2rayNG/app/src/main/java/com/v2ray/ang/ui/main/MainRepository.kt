@@ -129,6 +129,21 @@ class MainRepository(
         MmkvManager.encodeSettings(AppConfig.PREF_FREEDOM_SIMPLE_MODE, enabled)
     }
 
+    /** Not signed in, no Freedom VPN subscription, but servers of another service, and not dismissed recently. */
+    override fun shouldShowFreedomPromo(): Boolean {
+        if (com.v2ray.ang.freedom.AccountManager.isLoggedIn()) return false
+        val hasFreedom = MmkvManager.decodeSubscriptions()
+            .any { it.subscription.remarks == com.v2ray.ang.freedom.FreedomImporter.SUBSCRIPTION_NAME }
+        if (hasFreedom || MmkvManager.decodeAllServerList().isEmpty()) return false
+        val hiddenUntil = MmkvManager.decodeSettingsString(AppConfig.PREF_FREEDOM_PROMO_HIDDEN_UNTIL)?.toLongOrNull() ?: 0L
+        return System.currentTimeMillis() >= hiddenUntil
+    }
+
+    override fun dismissFreedomPromo() {
+        val until = System.currentTimeMillis() + java.util.concurrent.TimeUnit.DAYS.toMillis(7)
+        MmkvManager.encodeSettings(AppConfig.PREF_FREEDOM_PROMO_HIDDEN_UNTIL, until.toString())
+    }
+
     override fun isGroupAllDisplayEnabled(): Boolean =
         MmkvManager.decodeSettingsBool(AppConfig.PREF_GROUP_ALL_DISPLAY)
 

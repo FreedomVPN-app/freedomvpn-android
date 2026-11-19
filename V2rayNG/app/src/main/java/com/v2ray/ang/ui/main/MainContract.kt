@@ -28,6 +28,8 @@ data class MainUiState(
     val doubleColumnDisplay: Boolean = false,
     /** Freedom VPN: simple home screen (connect button + server picker) instead of the server list. */
     val simpleMode: Boolean = true,
+    /** Freedom VPN: the app has only other services' servers — offer the Freedom VPN trial. */
+    val showFreedomPromo: Boolean = false,
     val shareQRCodeBitmap: android.graphics.Bitmap? = null
 )
 
@@ -74,4 +76,7 @@ sealed interface MainAction {
 
     /** Freedom VPN: switch between the simple home screen and the full server list. */
     data class SetSimpleMode(val enabled: Boolean) : MainAction
+
+    /** Freedom VPN: hide the trial offer card for a while. */
+    data object DismissFreedomPromo : MainAction
 }

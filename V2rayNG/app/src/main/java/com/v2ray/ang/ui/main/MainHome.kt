@@ -79,6 +79,13 @@ internal fun MainHome(
             .padding(horizontal = 20.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (uiState.showFreedomPromo) {
+            FreedomPromoCard(
+                onTry = { onNavigate(MainDestination.Promotion) },
+                onDismiss = { onAction(MainAction.DismissFreedomPromo) },
+            )
+            Spacer(Modifier.height(12.dp))
+        }
         if (group == null) {
             NoSubscription(onNavigate)
             return@Column
@@ -160,6 +167,35 @@ internal fun MainHome(
             },
             onDismiss = { showPicker = false },
         )
+    }
+}
+
+@Composable
+private fun FreedomPromoCard(onTry: () -> Unit, onDismiss: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                stringResource(R.string.freedom_promo_card_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(R.string.freedom_promo_card_text),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Button(onClick = onTry) { Text(stringResource(R.string.freedom_promo_card_try)) }
+                Spacer(Modifier.size(8.dp))
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.freedom_promo_card_later)) }
+            }
+        }
     }
 }
 

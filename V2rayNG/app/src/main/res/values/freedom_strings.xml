@@ -117,4 +117,8 @@
     <string name="freedom_settings_subscriptions_hint">Subscription links and how often they update. The Freedom VPN subscription is set up automatically.</string>
     <string name="freedom_settings_routing_hint">What goes direct and what goes through the VPN. Applies only to servers added by hand: Freedom VPN servers bring their own rules.</string>
     <string name="freedom_settings_geo_hint">Lists of Russian sites and addresses for routing (RoscomVPN). Updated automatically every week.</string>
+    <string name="freedom_promo_card_title">Try Freedom VPN</string>
+    <string name="freedom_promo_card_text">7 days free: automatic best-server choice, works during mobile internet shutdowns (whitelists) and YouTube without ads.</string>
+    <string name="freedom_promo_card_try">Try for free</string>
+    <string name="freedom_promo_card_later">Not now</string>
 </resources>

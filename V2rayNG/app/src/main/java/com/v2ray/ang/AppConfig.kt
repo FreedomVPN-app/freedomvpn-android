@@ -55,6 +55,8 @@ object AppConfig {
     const val PREF_CONFIRM_REMOVE = "pref_confirm_remove"
     /** Freedom VPN: simple home screen on the main activity (default on). */
     const val PREF_FREEDOM_SIMPLE_MODE = "pref_freedom_simple_mode"
+    /** Freedom VPN: trial offer card for users of other services hidden until this time (ms). */
+    const val PREF_FREEDOM_PROMO_HIDDEN_UNTIL = "pref_freedom_promo_hidden_until"
     const val PREF_DOUBLE_COLUMN_DISPLAY = "pref_double_column_display"
     const val PREF_GROUP_ALL_DISPLAY = "pref_group_all_display"
     const val PREF_LANGUAGE = "pref_language"
