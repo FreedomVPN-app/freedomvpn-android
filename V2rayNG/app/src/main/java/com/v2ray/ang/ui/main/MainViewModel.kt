@@ -277,6 +277,7 @@ class MainViewModel(
     fun onAction(action: MainAction) {
         when (action) {
             MainAction.Initialize -> initialize()
+            MainAction.OpenInvite -> Unit // handled by MainActivity
             MainAction.DismissFreedomPromo -> {
                 _uiState.update { it.copy(showFreedomPromo = false) }
                 viewModelScope.launch(Dispatchers.IO) { dataSource.dismissFreedomPromo() }

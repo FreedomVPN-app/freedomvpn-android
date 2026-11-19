@@ -123,4 +123,5 @@
     <string name="freedom_promo_card_text">7 дней бесплатно: автовыбор лучшего сервера, работа при отключениях мобильного интернета («белые списки») и YouTube без рекламы.</string>
     <string name="freedom_promo_card_try">Попробовать бесплатно</string>
     <string name="freedom_promo_card_later">Не сейчас</string>
+    <string name="freedom_invite">Пригласить друга</string>
 </resources>

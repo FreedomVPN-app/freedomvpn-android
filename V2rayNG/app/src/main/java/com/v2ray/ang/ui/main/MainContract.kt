@@ -79,4 +79,7 @@ sealed interface MainAction {
 
     /** Freedom VPN: hide the trial offer card for a while. */
     data object DismissFreedomPromo : MainAction
+
+    /** Freedom VPN: open the referral section of the cabinet ("Invite a friend"). */
+    data object OpenInvite : MainAction
 }

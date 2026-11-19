@@ -10,6 +10,8 @@ package com.v2ray.ang.freedom
 object FreedomConfig {
     const val CABINET_HOST = "cabinet.topfreedomhub.com"
     const val CABINET_URL = "https://$CABINET_HOST"
+    /** Referral section of the cabinet ("Invite a friend"). */
+    const val CABINET_REFERRAL_PATH = "/referral"
 
     /** Bedolaga cabinet API: the web cabinet calls it as <cabinet>/api, the bot mounts it under /cabinet. */
     const val CABINET_API_URL = "$CABINET_URL/api/cabinet"

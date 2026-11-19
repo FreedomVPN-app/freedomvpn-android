@@ -109,6 +109,8 @@ internal fun SubscriptionInfoCard(
     onOpenLink: (String) -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Freedom VPN: for the account subscription, "Invite a friend" replaces the subscription page link. */
+    onInvite: (() -> Unit)? = null,
 ) {
     val model = remember(info) { buildSubscriptionInfoUiModel(info, System.currentTimeMillis()) }
 
@@ -142,12 +144,20 @@ internal fun SubscriptionInfoCard(
                         onClick = { onOpenLink(url) },
                     )
                 }
-                model.webPageUrl?.let { url ->
+                if (onInvite != null) {
                     CardIconButton(
-                        iconRes = R.drawable.ic_about_24dp,
-                        contentDescription = stringResource(R.string.sub_info_open_page),
-                        onClick = { onOpenLink(url) },
+                        iconRes = R.drawable.ic_freedom_invite_24dp,
+                        contentDescription = stringResource(R.string.freedom_invite),
+                        onClick = onInvite,
                     )
+                } else {
+                    model.webPageUrl?.let { url ->
+                        CardIconButton(
+                            iconRes = R.drawable.ic_about_24dp,
+                            contentDescription = stringResource(R.string.sub_info_open_page),
+                            onClick = { onOpenLink(url) },
+                        )
+                    }
                 }
                 CardIconButton(
                     iconRes = R.drawable.ic_refresh_24dp,

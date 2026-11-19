@@ -136,6 +136,7 @@ class MainActivity : HelperBaseComponentActivity() {
                     is MainAction.ShareClipboard -> shareToClipboard(action.guid)
                     is MainAction.ShareFullContent -> shareFullContentAsync(action.guid)
                     is MainAction.OpenSubscriptionLink -> openSubscriptionLink(action.url)
+                    MainAction.OpenInvite -> openCabinet(com.v2ray.ang.freedom.FreedomConfig.CABINET_REFERRAL_PATH)
                     else -> mainViewModel.onAction(action)
                 }
             },
@@ -156,6 +157,17 @@ class MainActivity : HelperBaseComponentActivity() {
         }
     }
 
+    /** Freedom VPN: the cabinet inside the app (signed in), optionally at [path]; otherwise sign in first. */
+    private fun openCabinet(path: String?) {
+        startActivity(
+            if (com.v2ray.ang.freedom.AccountManager.isLoggedIn()) {
+                com.v2ray.ang.freedom.CabinetActivity.intent(this, path)
+            } else {
+                com.v2ray.ang.freedom.LoginActivity.intent(this)
+            }
+        )
+    }
+
     private fun openSubscriptionLink(url: String) {
         // Links come from a remote panel, so only http(s) and tg:// are ever handed to ACTION_VIEW.
         val safeUrl = SubscriptionInfoParser.sanitizeLink(url) ?: return
@@ -174,11 +186,7 @@ class MainActivity : HelperBaseComponentActivity() {
             MainDestination.BackupRestore -> Intent(this, BackupActivity::class.java)
             MainDestination.About -> Intent(this, AboutActivity::class.java)
             MainDestination.Cabinet -> {
-                // Signed in: the cabinet inside the app with the same session; otherwise sign in first.
-                startActivity(
-                    if (com.v2ray.ang.freedom.AccountManager.isLoggedIn()) com.v2ray.ang.freedom.CabinetActivity.intent(this)
-                    else com.v2ray.ang.freedom.LoginActivity.intent(this)
-                )
+                openCabinet(null)
                 return
             }
             MainDestination.Promotion -> {

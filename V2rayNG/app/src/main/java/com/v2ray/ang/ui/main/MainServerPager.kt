@@ -147,6 +147,7 @@ fun GroupPagerPage(
                 fallbackTitle = groupTitle,
                 onOpenLink = onOpenLink,
                 onRefresh = { mainViewModel.onAction(MainAction.UpdateGroupSubscription(groupId)) },
+                onInvite = if (isFreedomGroup(groupTitle)) ({ mainViewModel.onAction(MainAction.OpenInvite) }) else null,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .onSizeChanged { infoHeightPx = it.height }

@@ -101,6 +101,7 @@ internal fun MainHome(
                 fallbackTitle = group.remarks,
                 onOpenLink = { url -> onAction(MainAction.OpenSubscriptionLink(url)) },
                 onRefresh = { onAction(MainAction.UpdateGroupSubscription(group.id)) },
+                onInvite = if (isFreedomGroup(group.remarks)) ({ onAction(MainAction.OpenInvite) }) else null,
             )
         }
 
@@ -413,3 +414,7 @@ internal fun splitServerName(remarks: String): Pair<String?, String> {
     val rest = trimmed.substring(space + 1).trim()
     return if (rest.isEmpty()) null to trimmed else head to rest
 }
+
+/** The account subscription imported by Freedom VPN (see FreedomImporter.SUBSCRIPTION_NAME). */
+internal fun isFreedomGroup(remarks: String): Boolean =
+    remarks == com.v2ray.ang.freedom.FreedomImporter.SUBSCRIPTION_NAME

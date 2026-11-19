@@ -101,7 +101,8 @@ class CabinetActivity : BaseComponentActivity() {
                 }
             }
             webView = this
-            loadUrl(FreedomConfig.CABINET_URL)
+            val path = intent.getStringExtra(EXTRA_PATH)?.takeIf { it.startsWith("/") }.orEmpty()
+            loadUrl(FreedomConfig.CABINET_URL.trimEnd('/') + path)
         }
 
     /** Gives the cabinet the app's session once, then reloads so the cabinet starts signed in. */
@@ -148,6 +149,10 @@ class CabinetActivity : BaseComponentActivity() {
     }
 
     companion object {
-        fun intent(context: android.content.Context) = Intent(context, CabinetActivity::class.java)
+        private const val EXTRA_PATH = "freedom_cabinet_path"
+
+        /** [path]: a cabinet page such as "/referral"; null opens the start page. */
+        fun intent(context: android.content.Context, path: String? = null) =
+            Intent(context, CabinetActivity::class.java).apply { path?.let { putExtra(EXTRA_PATH, it) } }
     }
 }
