@@ -122,4 +122,7 @@
     <string name="freedom_promo_card_try">Try for free</string>
     <string name="freedom_promo_card_later">Not now</string>
     <string name="freedom_invite">Invite a friend</string>
+    <string name="freedom_update_channel">App updates</string>
+    <string name="freedom_update_push_title">Freedom VPN %1$s is available</string>
+    <string name="freedom_update_push_text">Tap to download the update. Your subscription and settings stay in place.</string>
 </resources>

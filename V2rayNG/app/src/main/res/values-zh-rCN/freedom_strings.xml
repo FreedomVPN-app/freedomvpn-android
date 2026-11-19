@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Freedom VPN strings for this locale; other Freedom strings fall back to the default locale. -->
+<resources>
+    <string name="freedom_update_channel">应用更新</string>
+    <string name="freedom_update_push_title">Freedom VPN %1$s 已发布</string>
+    <string name="freedom_update_push_text">点击下载更新。您的订阅和设置将保留。</string>
+</resources>

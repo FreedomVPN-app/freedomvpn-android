@@ -107,6 +107,8 @@ class MainActivity : HelperBaseComponentActivity() {
         com.v2ray.ang.freedom.GeoUpdater.schedule(this)
         // Freedom VPN: push about new personal offers from the bot
         com.v2ray.ang.freedom.OfferNotifier.schedule(this)
+        // Freedom VPN: daily check for a new app release, one notification per version
+        com.v2ray.ang.freedom.UpdateNotifier.schedule(this)
     }
 
     // Freedom VPN: after sign-in / link import the existing main screen is brought to front

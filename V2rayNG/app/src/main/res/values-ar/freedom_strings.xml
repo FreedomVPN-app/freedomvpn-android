@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Freedom VPN strings for this locale; other Freedom strings fall back to the default locale. -->
+<resources>
+    <string name="freedom_update_channel">تحديثات التطبيق</string>
+    <string name="freedom_update_push_title">الإصدار %1$s من Freedom VPN متاح</string>
+    <string name="freedom_update_push_text">اضغط لتنزيل التحديث. سيبقى اشتراكك وإعداداتك كما هي.</string>
+</resources>

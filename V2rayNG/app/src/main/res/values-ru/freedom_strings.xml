@@ -124,4 +124,7 @@
     <string name="freedom_promo_card_try">Попробовать бесплатно</string>
     <string name="freedom_promo_card_later">Не сейчас</string>
     <string name="freedom_invite">Пригласить друга</string>
+    <string name="freedom_update_channel">Обновления приложения</string>
+    <string name="freedom_update_push_title">Доступна версия Freedom VPN %1$s</string>
+    <string name="freedom_update_push_text">Нажмите, чтобы скачать обновление. Подписка и настройки сохранятся.</string>
 </resources>

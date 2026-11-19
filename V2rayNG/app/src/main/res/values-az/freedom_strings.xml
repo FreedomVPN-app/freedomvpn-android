@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Freedom VPN strings for this locale; other Freedom strings fall back to the default locale. -->
+<resources>
+    <string name="freedom_update_channel">Tətbiq yeniləmələri</string>
+    <string name="freedom_update_push_title">Freedom VPN %1$s versiyası mövcuddur</string>
+    <string name="freedom_update_push_text">Yeniləməni yükləmək üçün toxunun. Abunəliyiniz və ayarlarınız qorunur.</string>
+</resources>

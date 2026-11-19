@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Freedom VPN strings for this locale; other Freedom strings fall back to the default locale. -->
+<resources>
+    <string name="freedom_update_channel">Cập nhật ứng dụng</string>
+    <string name="freedom_update_push_title">Đã có Freedom VPN %1$s</string>
+    <string name="freedom_update_push_text">Nhấn để tải bản cập nhật. Gói đăng ký và cài đặt của bạn được giữ nguyên.</string>
+</resources>

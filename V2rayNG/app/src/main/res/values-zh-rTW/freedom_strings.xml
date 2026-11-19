@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Freedom VPN strings for this locale; other Freedom strings fall back to the default locale. -->
+<resources>
+    <string name="freedom_update_channel">應用程式更新</string>
+    <string name="freedom_update_push_title">Freedom VPN %1$s 已發佈</string>
+    <string name="freedom_update_push_text">點選下載更新。您的訂閱與設定將會保留。</string>
+</resources>

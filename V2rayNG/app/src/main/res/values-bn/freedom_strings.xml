@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Freedom VPN strings for this locale; other Freedom strings fall back to the default locale. -->
+<resources>
+    <string name="freedom_update_channel">অ্যাপ আপডেট</string>
+    <string name="freedom_update_push_title">Freedom VPN %1$s উপলব্ধ</string>
+    <string name="freedom_update_push_text">আপডেট ডাউনলোড করতে ট্যাপ করুন। আপনার সাবস্ক্রিপশন ও সেটিংস অপরিবর্তিত থাকবে।</string>
+</resources>

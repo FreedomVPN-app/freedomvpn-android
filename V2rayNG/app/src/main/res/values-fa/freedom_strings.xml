@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Freedom VPN strings for this locale; other Freedom strings fall back to the default locale. -->
+<resources>
+    <string name="freedom_update_channel">به‌روزرسانی برنامه</string>
+    <string name="freedom_update_push_title">نسخه %1$s از Freedom VPN منتشر شد</string>
+    <string name="freedom_update_push_text">برای دانلود به‌روزرسانی بزنید. اشتراک و تنظیمات شما حفظ می‌شود.</string>
+</resources>
