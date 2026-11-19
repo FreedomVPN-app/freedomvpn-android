@@ -131,7 +131,8 @@ jobs:
         chmod 755 gradlew
         ./gradlew :app:testPlaystoreDebugUnitTest \
           --tests 'com.v2ray.ang.freedom.*' \
-          --tests 'com.v2ray.ang.ui.main.ServerNameSplitTest'
+          --tests 'com.v2ray.ang.ui.main.ServerNameSplitTest' \
+          --tests 'com.v2ray.ang.ui.userasset.UserAssetViewModelTest'
 
     - name: Build APK
       run: |

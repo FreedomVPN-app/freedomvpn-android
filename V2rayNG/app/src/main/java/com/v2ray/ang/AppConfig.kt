@@ -353,11 +353,24 @@ object AppConfig {
         "224.0.0.0/4"
     )
 
+    /** Freedom VPN: RoscomVPN keeps geosite and geoip in two repositories, see [geoFileUrl]. */
+    const val GEO_SOURCE_ROSCOMVPN = "hydraponique/roscomvpn"
+
     val GEO_FILES_SOURCES = arrayListOf(
+        GEO_SOURCE_ROSCOMVPN,
         "Loyalsoldier/v2ray-rules-dat",
         "runetfreedom/russia-v2ray-rules-dat",
         "Chocolate4U/Iran-v2ray-rules"
     )
+
+    /** Download URL of a built-in geo file for the selected source. */
+    fun geoFileUrl(source: String, fileName: String): String =
+        if (source == GEO_SOURCE_ROSCOMVPN) {
+            val repo = if (fileName == GEOIP_DAT) "roscomvpn-geoip" else "roscomvpn-geosite"
+            "$GITHUB_URL/hydraponique/$repo/releases/latest/download/$fileName"
+        } else {
+            "${String.format(GITHUB_DOWNLOAD_URL, source)}/$fileName"
+        }
 
     val BUILTIN_OUTBOUND_TAGS = setOf(
         TAG_PROXY,

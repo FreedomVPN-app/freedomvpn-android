@@ -6,7 +6,6 @@ import com.v2ray.ang.AppConfig
 import com.v2ray.ang.dto.UrlContentRequest
 import com.v2ray.ang.dto.entities.AssetUrlCache
 import com.v2ray.ang.dto.entities.AssetUrlItem
-import com.v2ray.ang.extension.concatUrl
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.ui.base.BaseViewModel
 import com.v2ray.ang.util.HttpUtil
@@ -62,7 +61,7 @@ class UserAssetViewModel(application: Application) : BaseViewModel(application) 
                     "builtin:$it",
                     AssetUrlItem(
                         it,
-                        String.format(AppConfig.GITHUB_DOWNLOAD_URL, geoFilesSource).concatUrl(it),
+                        AppConfig.geoFileUrl(geoFilesSource, it),
                         locked = true
                     )
                 )
@@ -126,6 +125,11 @@ class UserAssetViewModel(application: Application) : BaseViewModel(application) 
                     targetTemp
                 )
             ) {
+                if (!com.v2ray.ang.freedom.GeoUpdater.isUsable(targetTemp, item.remarks, item.url)) {
+                    LogUtil.w(AppConfig.TAG, "Downloaded geo file failed the check: ${item.remarks}")
+                    targetTemp.delete()
+                    return false
+                }
                 if (!replaceAssetFile(targetTemp, target)) {
                     LogUtil.e(AppConfig.TAG, "Failed to replace geo file: ${item.remarks}")
                     return false

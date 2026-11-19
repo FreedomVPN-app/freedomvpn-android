@@ -103,6 +103,8 @@ class MainActivity : HelperBaseComponentActivity() {
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         // Freedom VPN: remind about the subscription end (3 days, 1 day, expired)
         com.v2ray.ang.freedom.ExpiryReminder.schedule(this)
+        // Freedom VPN: weekly refresh of the RoscomVPN geo databases
+        com.v2ray.ang.freedom.GeoUpdater.schedule(this)
     }
 
     // Freedom VPN: after sign-in / link import the existing main screen is brought to front
