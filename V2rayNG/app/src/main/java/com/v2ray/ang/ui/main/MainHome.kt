@@ -54,8 +54,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.v2ray.ang.R
 
-private val FreedomTeal = Color(0xFF2FE0C4)
-private val FreedomNavy = Color(0xFF0E1626)
 
 /**
  * Freedom VPN: simple home screen — subscription card, one big connect button and a server picker.
@@ -168,18 +166,19 @@ private fun NoSubscription(onNavigate: (MainDestination) -> Unit) {
 
 @Composable
 private fun ConnectButton(isRunning: Boolean, onClick: () -> Unit) {
+    val accent = MaterialTheme.colorScheme.primary
     val container by animateColorAsState(
-        if (isRunning) FreedomTeal else MaterialTheme.colorScheme.surfaceVariant,
+        if (isRunning) accent else MaterialTheme.colorScheme.surfaceContainerHighest,
         label = "connectContainer",
     )
-    val content = if (isRunning) FreedomNavy else MaterialTheme.colorScheme.onSurfaceVariant
+    val content = if (isRunning) MaterialTheme.colorScheme.onPrimary else accent
     val label = stringResource(if (isRunning) R.string.freedom_home_disconnect else R.string.freedom_home_connect)
     val state = stringResource(if (isRunning) R.string.freedom_home_connected else R.string.freedom_home_disconnected)
     Surface(
         onClick = onClick,
         shape = CircleShape,
         color = container,
-        border = BorderStroke(6.dp, FreedomTeal.copy(alpha = if (isRunning) 0.35f else 0.6f)),
+        border = BorderStroke(6.dp, accent.copy(alpha = if (isRunning) 0.3f else 0.15f)),
         shadowElevation = 6.dp,
         modifier = Modifier
             .size(180.dp)
