@@ -20,7 +20,7 @@ android {
 
         // GitHub repo "owner/name" used for update checks and the About screen.
         // GitHub Actions sets GITHUB_REPOSITORY automatically.
-        val updateRepo = System.getenv("GITHUB_REPOSITORY") ?: "topfreedom/freedomvpn-android"
+        val updateRepo = System.getenv("GITHUB_REPOSITORY") ?: "FreedomVPN-app/freedomvpn-android"
         buildConfigField("String", "UPDATE_REPO", "\"$updateRepo\"")
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
