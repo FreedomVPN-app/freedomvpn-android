@@ -173,6 +173,10 @@ class MainActivity : HelperBaseComponentActivity() {
             MainDestination.CheckUpdate -> Intent(this, CheckUpdateActivity::class.java)
             MainDestination.BackupRestore -> Intent(this, BackupActivity::class.java)
             MainDestination.About -> Intent(this, AboutActivity::class.java)
+            MainDestination.Cabinet -> {
+                Utils.openUri(this, com.v2ray.ang.freedom.FreedomConfig.CABINET_URL)
+                return
+            }
             MainDestination.Promotion -> {
                 // Freedom VPN: the drawer item opens the account / sign-in screen
                 startActivity(com.v2ray.ang.freedom.LoginActivity.intent(this))

@@ -41,6 +41,8 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
     UserAssets(R.drawable.ic_file_24dp, R.string.title_user_asset_setting),
     Settings(R.drawable.ic_settings_24dp, R.string.title_settings),
     Promotion(R.drawable.ic_promotion_24dp, R.string.freedom_account),
+    /** Freedom VPN: the web cabinet in the browser. */
+    Cabinet(R.drawable.ic_freedom_web_24dp, R.string.freedom_cabinet),
     Logcat(R.drawable.ic_logcat_24dp, R.string.title_logcat),
     CheckUpdate(R.drawable.ic_check_update_24dp, R.string.update_check_for_update),
     BackupRestore(R.drawable.ic_restore_24dp, R.string.title_configuration_backup_restore),
@@ -57,6 +59,7 @@ private val primaryDrawerItems = listOf(
 
 private val drawerItems = primaryDrawerItems + listOf(
     MainDestination.Promotion,
+    MainDestination.Cabinet,
     MainDestination.Logcat,
     MainDestination.CheckUpdate,
     MainDestination.BackupRestore,

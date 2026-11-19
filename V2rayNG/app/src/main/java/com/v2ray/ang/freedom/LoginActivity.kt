@@ -435,6 +435,15 @@ class LoginActivity : BaseComponentActivity() {
         OutlinedButton(onClick = { openUrl(FreedomConfig.SUPPORT_URL) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.freedom_support))
         }
+        Spacer(Modifier.height(10.dp))
+        OutlinedButton(onClick = { openUrl(FreedomConfig.CABINET_URL) }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.freedom_cabinet))
+        }
+        Text(
+            stringResource(R.string.freedom_cabinet_hint),
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+        )
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
             TextButton(onClick = { loadAccount() }) { Text(stringResource(R.string.freedom_refresh)) }

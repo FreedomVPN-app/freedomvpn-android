@@ -108,4 +108,6 @@
     <string name="freedom_offer_push_title">A %1$d%% discount for you</string>
     <string name="freedom_offer_push_text">A personal offer on your Freedom VPN subscription. Tap to get the discount.</string>
     <string name="freedom_offer_push_text_until">A personal subscription offer until %2$s. Tap to get your %1$d%% discount.</string>
+    <string name="freedom_cabinet">Personal cabinet</string>
+    <string name="freedom_cabinet_hint">Opens in the browser. Sign in the same way as in the app: referrals, balance, payment history and gifts are there.</string>
 </resources>

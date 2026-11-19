@@ -110,4 +110,6 @@
     <string name="freedom_offer_push_title">Для вас скидка %1$d%%</string>
     <string name="freedom_offer_push_text">Персональное предложение на подписку Freedom VPN. Нажмите, чтобы получить скидку.</string>
     <string name="freedom_offer_push_text_until">Персональное предложение на подписку до %2$s. Нажмите, чтобы получить скидку %1$d%%.</string>
+    <string name="freedom_cabinet">Личный кабинет</string>
+    <string name="freedom_cabinet_hint">Откроется в браузере. Войдите тем же способом, что и в приложении: там рефералы, баланс, история платежей и подарки.</string>
 </resources>
