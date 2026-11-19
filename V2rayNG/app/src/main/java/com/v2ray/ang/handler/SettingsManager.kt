@@ -53,7 +53,11 @@ object SettingsManager {
      */
     private fun initRoutingRulesets(context: Context) {
         val exist = MmkvManager.decodeRoutingRulesets()
-        if (exist.isNullOrEmpty()) {
+        // Freedom VPN: installs that got the old default China whitelist (rule names in Chinese)
+        // are switched once to the Russia preset; any other user rules are kept.
+        val chinaDefault = !exist.isNullOrEmpty() &&
+            exist.any { rule -> rule.remarks.orEmpty().any { it in '\u4e00'..'\u9fff' } }
+        if (exist.isNullOrEmpty() || chinaDefault) {
             val rulesetList = getPresetRoutingRulesets(context)
             MmkvManager.encodeRoutingRulesets(rulesetList)
         }
@@ -65,7 +69,8 @@ object SettingsManager {
      * @param type The routing preset type.
      * @return A mutable list of RulesetItem.
      */
-    private fun getPresetRoutingRulesets(context: Context, type: RoutingType = RoutingType.WHITE): MutableList<RulesetItem>? {
+    // Freedom VPN: new installs start with the Russia preset instead of the China whitelist
+    private fun getPresetRoutingRulesets(context: Context, type: RoutingType = RoutingType.WHITE_RUSSIA): MutableList<RulesetItem>? {
         val assets = Utils.readTextFromAssets(context, type.fileName)
         if (TextUtils.isEmpty(assets)) {
             return null

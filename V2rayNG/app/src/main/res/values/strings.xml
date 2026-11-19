@@ -176,7 +176,7 @@
     <string name="msg_downloading_content">Downloading content</string>
     <string name="menu_item_export_proxy_app">Export to Clipboard</string>
     <string name="menu_item_import_proxy_app">Import from Clipboard</string>
-    <string name="per_app_proxy_settings">Per-app settings</string>
+    <string name="per_app_proxy_settings">Apps through VPN</string>
     <string name="per_app_proxy_settings_enable">Enable per-app</string>
     <string name="app_picker_unknown_app">Unknown app (UID not recognized)</string>
 
@@ -330,7 +330,7 @@
     <string name="title_root_lan_sharing">Share VPN with LAN / tethered devices (root users)</string>
     <string name="summary_root_lan_sharing">Route traffic from Wi-Fi hotspot and USB-tethered devices through the VPN.</string>
 
-    <string name="title_logcat" translatable="false">Logcat</string>
+    <string name="title_logcat" translatable="false">Log</string>
     <string name="logcat_copy">Copy</string>
     <string name="logcat_clear">Clear</string>
     <string name="logcat_share">Share log</string>
@@ -357,7 +357,7 @@
     <string name="title_sub_update">Update subscription</string>
     <string name="title_ping_all_server">Test TCP delays (TCPing)</string>
     <string name="title_real_ping_all_server">Test real delays</string>
-    <string name="title_user_asset_setting">Asset files</string>
+    <string name="title_user_asset_setting">Geo databases</string>
     <string name="title_sort_by_test_results">Sort by test results</string>
     <string name="title_filter_config">Filter configs</string>
     <string name="filter_config_all">All</string>

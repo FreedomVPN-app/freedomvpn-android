@@ -176,7 +176,7 @@
     <string name="msg_downloading_content">Загрузка данных</string>
     <string name="menu_item_export_proxy_app">Экспорт в буфер обмена</string>
     <string name="menu_item_import_proxy_app">Импорт из буфера обмена</string>
-    <string name="per_app_proxy_settings">Выбор приложений</string>
+    <string name="per_app_proxy_settings">Приложения через VPN</string>
     <string name="per_app_proxy_settings_enable">Использовать выбор</string>
     <string name="app_picker_unknown_app">Неизвестное приложение (неопознанный UID)</string>
 
@@ -330,7 +330,7 @@
     <string name="title_root_lan_sharing">Доступ к VPN для устройств LAN/точки доступа (root)</string>
     <string name="summary_root_lan_sharing">Направлять через VPN трафик устройств, подключённых к точке доступа Wi-Fi или по USB</string>
 
-    <string name="title_logcat" translatable="false">Logcat</string>
+    <string name="title_logcat" translatable="false">Журнал работы</string>
     <string name="logcat_copy">Копировать</string>
     <string name="logcat_clear">Очистить</string>
     <string name="logcat_share">Поделиться журналом</string>
@@ -339,7 +339,7 @@
     <string name="title_del_duplicate_config">Удалить дубликаты профилей</string>
     <string name="title_del_invalid_config">Удалить нерабочие профили</string>
     <string name="title_export_all">Экспорт профилей в буфер обмена</string>
-    <string name="title_sub_setting">Группы</string>
+    <string name="title_sub_setting">Подписки</string>
     <string name="sub_setting_remarks">Название</string>
     <string name="sub_setting_url">URL (необязательно)</string>
     <string name="sub_setting_user_agent" translatable="false">User Agent</string>
@@ -357,7 +357,7 @@
     <string name="title_sub_update">Обновить подписку</string>
     <string name="title_ping_all_server">Проверить TCP-задержку</string>
     <string name="title_real_ping_all_server">Проверить реальную задержку</string>
-    <string name="title_user_asset_setting">Файлы ресурсов</string>
+    <string name="title_user_asset_setting">Гео-базы</string>
     <string name="title_sort_by_test_results">Сортировать по результатам теста</string>
     <string name="title_filter_config">Фильтр профилей</string>
     <string name="filter_config_all">Все</string>
@@ -462,7 +462,7 @@
     <string name="server_proxy_chain_members_invalid">Недопустимые участники цепочки: %1$s</string>
 
     <!-- BackupActivity -->
-    <string name="title_configuration_backup_restore">Резервирование и восстановление</string>
+    <string name="title_configuration_backup_restore">Резервная копия настроек</string>
     <string name="title_configuration_backup">Резервирование конфигурации</string>
     <string name="title_configuration_restore">Восстановление конфигурации</string>
     <string name="title_profile_storage_cleanup">Исправить хранилище профилей</string>
@@ -507,9 +507,9 @@
 
     <string name="routing_preset_china_whitelist">Белый список Китая</string>
     <string name="routing_preset_china_blacklist">Чёрный список Китая</string>
-    <string name="routing_preset_global">Общие</string>
+    <string name="routing_preset_global">Всё через VPN</string>
     <string name="routing_preset_iran_whitelist">Белый список Ирана</string>
-    <string name="routing_preset_russia_whitelist">Белый список России</string>
+    <string name="routing_preset_russia_whitelist">Россия напрямую (рекомендуется)</string>
 
     <string-array name="vpn_bypass_lan">
         <item>Как в профиле</item>
