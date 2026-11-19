@@ -85,4 +85,25 @@
         <item quantity="many">Осталось %1$d дней. Продлите подписку, чтобы VPN не отключился.</item>
         <item quantity="other">Осталось %1$d дня. Продлите подписку, чтобы VPN не отключился.</item>
     </plurals>
+    <string name="freedom_discount_active">Ваша скидка −%1$d%% применится к следующей покупке</string>
+    <string name="freedom_discount_active_until">Ваша скидка −%1$d%% до %2$s применится к следующей покупке</string>
+    <string name="freedom_offer_title">Персональное предложение</string>
+    <string name="freedom_offer_text">Скидка %1$d%% на подписку — до %2$s</string>
+    <string name="freedom_offer_claim">Получить скидку</string>
+    <string name="freedom_offer_claimed">Скидка %1$d%% активирована — выберите срок в «Купить подписку»</string>
+    <string name="freedom_promo_label">Промокод</string>
+    <string name="freedom_promo_apply">Применить</string>
+    <string name="freedom_promo_applying">Применяем промокод…</string>
+    <string name="freedom_promo_done">Промокод применён</string>
+    <string name="freedom_promo_done_with">Промокод применён: %1$s</string>
+    <string name="freedom_promo_err_not_found">Такого промокода нет — проверьте написание</string>
+    <string name="freedom_promo_err_expired">Срок действия промокода закончился</string>
+    <string name="freedom_promo_err_used">Промокод уже использован максимальное число раз</string>
+    <string name="freedom_promo_err_already">Вы уже применяли этот промокод</string>
+    <string name="freedom_promo_err_discount">У вас уже есть активная скидка — сначала используйте её</string>
+    <string name="freedom_promo_err_no_sub">Этот промокод добавляет дни к подписке — сначала оформите пробный период или подписку</string>
+    <string name="freedom_promo_err_first">Промокод действует только на первую покупку</string>
+    <string name="freedom_promo_err_trial">У вас уже есть подписка, этот промокод для новых пользователей</string>
+    <string name="freedom_promo_err_limit">Слишком много попыток за сегодня, попробуйте завтра</string>
+    <string name="freedom_promo_err_other">Не удалось применить промокод</string>
 </resources>

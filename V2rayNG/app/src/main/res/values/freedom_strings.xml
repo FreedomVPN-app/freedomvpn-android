@@ -83,4 +83,25 @@
         <item quantity="one">%1$d day left. Extend the subscription so the VPN keeps working.</item>
         <item quantity="other">%1$d days left. Extend the subscription so the VPN keeps working.</item>
     </plurals>
+    <string name="freedom_discount_active">Your −%1$d%% discount applies to the next purchase</string>
+    <string name="freedom_discount_active_until">Your −%1$d%% discount until %2$s applies to the next purchase</string>
+    <string name="freedom_offer_title">Personal offer</string>
+    <string name="freedom_offer_text">%1$d%% off the subscription — until %2$s</string>
+    <string name="freedom_offer_claim">Get the discount</string>
+    <string name="freedom_offer_claimed">%1$d%% discount activated — choose a period in “Buy a subscription”</string>
+    <string name="freedom_promo_label">Promo code</string>
+    <string name="freedom_promo_apply">Apply</string>
+    <string name="freedom_promo_applying">Applying the promo code…</string>
+    <string name="freedom_promo_done">Promo code applied</string>
+    <string name="freedom_promo_done_with">Promo code applied: %1$s</string>
+    <string name="freedom_promo_err_not_found">No such promo code — check the spelling</string>
+    <string name="freedom_promo_err_expired">The promo code has expired</string>
+    <string name="freedom_promo_err_used">The promo code has been used up</string>
+    <string name="freedom_promo_err_already">You have already used this promo code</string>
+    <string name="freedom_promo_err_discount">You already have an active discount — use it first</string>
+    <string name="freedom_promo_err_no_sub">This code adds days to a subscription — start a trial or buy a subscription first</string>
+    <string name="freedom_promo_err_first">The promo code is for the first purchase only</string>
+    <string name="freedom_promo_err_trial">You already have a subscription; this code is for new users</string>
+    <string name="freedom_promo_err_limit">Too many attempts today, try again tomorrow</string>
+    <string name="freedom_promo_err_other">Could not apply the promo code</string>
 </resources>

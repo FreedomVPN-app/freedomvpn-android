@@ -129,6 +129,10 @@ object AccountManager {
     data class AccountInfo(
         val subscription: CabinetApi.SubscriptionData?,
         val trial: CabinetApi.TrialInfo?,
+        /** Personal offers from the bot (e.g. "-30% for 7 days") not yet claimed. */
+        val offers: List<CabinetApi.PromoOffer> = emptyList(),
+        /** Claimed discount that the next purchase uses. */
+        val discount: CabinetApi.ActiveDiscount? = null,
     ) {
         val hasActive: Boolean get() = subscription?.isActive == true
     }
@@ -144,7 +148,21 @@ object AccountManager {
             LogUtil.w(AppConfig.TAG, "Freedom: trial info unavailable: ${e.code}")
             null
         }
-        return AccountInfo(sub, trial)
+        val offers = optional("promo offers") { withToken { CabinetApi.promoOffers(it) } }
+            ?.filter { it.isActive && !it.isClaimed && (it.discountPercent ?: 0) > 0 }
+            .orEmpty()
+        val discount = optional("active discount") { withToken { CabinetApi.activeDiscount(it) } }
+            ?.takeIf { it.isActive && it.discountPercent > 0 }
+        return AccountInfo(sub, trial, offers, discount)
+    }
+
+    /** Extras that must not break the account screen when the cabinet lacks them. */
+    private fun <T> optional(what: String, block: () -> T): T? = try {
+        block()
+    } catch (e: CabinetApi.ApiException) {
+        if (e.code == 401) throw e
+        LogUtil.w(AppConfig.TAG, "Freedom: $what unavailable: ${e.code}")
+        null
     }
 
     /**

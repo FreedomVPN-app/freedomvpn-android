@@ -20,7 +20,29 @@ import java.util.concurrent.TimeUnit
  */
 object CabinetApi {
 
-    class ApiException(val code: Int, message: String) : IOException(message)
+    /** [errorCode]: machine-readable `detail.code` when the cabinet sends one (e.g. promo code errors). */
+    class ApiException(val code: Int, message: String, val errorCode: String? = null) : IOException(message)
+
+    data class PromoOffer(
+        @SerializedName("id") val id: Int = 0,
+        @SerializedName("discount_percent") val discountPercent: Int? = null,
+        @SerializedName("effect_type") val effectType: String? = null,
+        @SerializedName("expires_at") val expiresAt: String? = null,
+        @SerializedName("is_active") val isActive: Boolean = false,
+        @SerializedName("is_claimed") val isClaimed: Boolean = false,
+    )
+
+    data class ActiveDiscount(
+        @SerializedName("discount_percent") val discountPercent: Int = 0,
+        @SerializedName("expires_at") val expiresAt: String? = null,
+        @SerializedName("is_active") val isActive: Boolean = false,
+    )
+
+    data class PromocodeResult(
+        @SerializedName("success") val success: Boolean = false,
+        @SerializedName("error") val error: String? = null,
+        @SerializedName("bonus_description") val bonusDescription: String? = null,
+    )
 
     data class AuthResult(
         @SerializedName("access_token") val accessToken: String = "",
@@ -169,6 +191,13 @@ object CabinetApi {
         }
     }
 
+    private fun errorCode(r: Response): String? = try {
+        gson.fromJson(r.body, JsonObject::class.java)?.get("detail")
+            ?.takeIf { it.isJsonObject }?.asJsonObject?.get("code")?.asString
+    } catch (_: Exception) {
+        null
+    }
+
     private fun errorDetail(r: Response): String {
         return try {
             gson.fromJson(r.body, JsonObject::class.java)?.get("detail")?.let {
@@ -262,6 +291,32 @@ object CabinetApi {
         }
         parseOk<JsonObject>(r)
         return PurchaseResult.Done
+    }
+
+    // ---- Promo codes and personal offers ----
+
+    fun promoOffers(accessToken: String): List<PromoOffer> {
+        val r = call("GET", "/promo/offers", accessToken = accessToken)
+        if (r.code !in 200..299) throw ApiException(r.code, errorDetail(r), errorCode(r))
+        return gson.fromJson(r.body, Array<PromoOffer>::class.java)?.toList().orEmpty()
+    }
+
+    fun activeDiscount(accessToken: String): ActiveDiscount =
+        parseOk(call("GET", "/promo/active-discount", accessToken = accessToken))
+
+    fun claimOffer(accessToken: String, offerId: Int) {
+        val body = JsonObject().apply { addProperty("offer_id", offerId) }
+        parseOk<JsonObject>(call("POST", "/promo/claim", body, accessToken))
+    }
+
+    /** Throws [ApiException] with [ApiException.errorCode] (not_found, expired, used, ...) on rejection. */
+    fun activatePromocode(accessToken: String, code: String): PromocodeResult {
+        val body = JsonObject().apply { addProperty("code", code) }
+        val r = call("POST", "/promocode/activate", body, accessToken)
+        if (r.code !in 200..299) throw ApiException(r.code, errorDetail(r), errorCode(r))
+        val result = gson.fromJson(r.body, PromocodeResult::class.java) ?: PromocodeResult()
+        if (!result.success) throw ApiException(r.code, result.error ?: "promo code rejected", result.error)
+        return result
     }
 
     fun paymentMethods(accessToken: String): List<PaymentMethod> {

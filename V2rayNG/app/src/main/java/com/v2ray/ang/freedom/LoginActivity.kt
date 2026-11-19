@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,12 +30,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +47,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.AppConfig
@@ -75,7 +83,11 @@ class LoginActivity : BaseComponentActivity() {
         data object WaitingBrowser : UiState
         data class Busy(val textRes: Int) : UiState
         data class Error(val message: String) : UiState
-        data class Account(val info: AccountManager.AccountInfo, val notice: String? = null) : UiState
+        data class Account(
+            val info: AccountManager.AccountInfo,
+            val notice: String? = null,
+            val noticeIsError: Boolean = true,
+        ) : UiState
         data class Plans(val options: CabinetApi.PurchaseOptions, val info: AccountManager.AccountInfo) : UiState
         data class PayMethods(
             val tariff: CabinetApi.Tariff,
@@ -140,6 +152,7 @@ class LoginActivity : BaseComponentActivity() {
             modifier = Modifier
                 .fillMaxSize()
                 .systemBarsPadding()
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -365,7 +378,19 @@ class LoginActivity : BaseComponentActivity() {
         SubscriptionCard(info)
         current.notice?.let {
             Spacer(Modifier.height(10.dp))
-            Text(it, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
+            Text(
+                it,
+                color = if (current.noticeIsError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary,
+                textAlign = TextAlign.Center,
+            )
+        }
+        info.discount?.let { d ->
+            Spacer(Modifier.height(10.dp))
+            DiscountBadge(d)
+        }
+        info.offers.forEach { offer ->
+            Spacer(Modifier.height(10.dp))
+            OfferCard(offer, onClaim = { claimOffer(info, offer) })
         }
         Spacer(Modifier.height(16.dp))
 
@@ -404,6 +429,8 @@ class LoginActivity : BaseComponentActivity() {
                 Text(stringResource(buyText))
             }
         }
+        Spacer(Modifier.height(16.dp))
+        PromoCodeField(onApply = { code -> activatePromocode(info, code) })
         Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = { openUrl(FreedomConfig.SUPPORT_URL) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.freedom_support))
@@ -417,12 +444,75 @@ class LoginActivity : BaseComponentActivity() {
     }
 
     @Composable
+    private fun DiscountBadge(discount: CabinetApi.ActiveDiscount) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = MaterialTheme.colorScheme.primaryContainer,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                if (discount.expiresAt != null) {
+                    stringResource(R.string.freedom_discount_active_until, discount.discountPercent, formatDate(discount.expiresAt))
+                } else {
+                    stringResource(R.string.freedom_discount_active, discount.discountPercent)
+                },
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            )
+        }
+    }
+
+    @Composable
+    private fun OfferCard(offer: CabinetApi.PromoOffer, onClaim: () -> Unit) {
+        InfoCard {
+            Text(stringResource(R.string.freedom_offer_title), style = MaterialTheme.typography.labelLarge)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(R.string.freedom_offer_text, offer.discountPercent ?: 0, formatDate(offer.expiresAt)),
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Spacer(Modifier.height(10.dp))
+            Button(onClick = onClaim, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.freedom_offer_claim))
+            }
+        }
+    }
+
+    @Composable
+    private fun PromoCodeField(onApply: (String) -> Unit) {
+        var code by rememberSaveable { mutableStateOf("") }
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = code,
+                onValueChange = { code = it.take(64) },
+                label = { Text(stringResource(R.string.freedom_promo_label)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Characters,
+                    imeAction = ImeAction.Done,
+                ),
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(8.dp))
+            OutlinedButton(onClick = { onApply(code.trim()) }, enabled = code.isNotBlank()) {
+                Text(stringResource(R.string.freedom_promo_apply))
+            }
+        }
+    }
+
+    @Composable
     private fun PlansContent(current: UiState.Plans) {
         val opts = current.options
         Text(stringResource(R.string.freedom_plans_title), style = MaterialTheme.typography.titleMedium)
         opts.balanceLabel?.let {
             Spacer(Modifier.height(4.dp))
             Text(stringResource(R.string.freedom_balance, it), style = MaterialTheme.typography.bodySmall)
+        }
+        current.info.discount?.let {
+            Spacer(Modifier.height(8.dp))
+            DiscountBadge(it)
         }
         Spacer(Modifier.height(12.dp))
         val tariffs = opts.tariffs.orEmpty().filter { it.isAvailable && !it.periods.isNullOrEmpty() }
@@ -450,7 +540,7 @@ class LoginActivity : BaseComponentActivity() {
                     Spacer(Modifier.height(6.dp))
                 }
                 tariff.periods.orEmpty().forEach { period ->
-                    PeriodRow(period) { buy(tariff, period, current.info) }
+                    PeriodRow(period, current.info.discount?.discountPercent ?: 0) { buy(tariff, period, current.info) }
                     Spacer(Modifier.height(8.dp))
                 }
                 Spacer(Modifier.height(8.dp))
@@ -462,7 +552,7 @@ class LoginActivity : BaseComponentActivity() {
     }
 
     @Composable
-    private fun PeriodRow(period: CabinetApi.TariffPeriod, onClick: () -> Unit) {
+    private fun PeriodRow(period: CabinetApi.TariffPeriod, discountPercent: Int, onClick: () -> Unit) {
         val highlighted = period.isHighlighted
         Surface(
             shape = RoundedCornerShape(14.dp),
@@ -486,11 +576,25 @@ class LoginActivity : BaseComponentActivity() {
                         Text(stringResource(R.string.freedom_per_month, it), style = MaterialTheme.typography.bodySmall)
                     }
                 }
-                Text(
-                    period.priceLabel ?: formatRub(period.priceKopeks),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                val fullPrice = period.priceLabel ?: formatRub(period.priceKopeks)
+                if (discountPercent in 1..99) {
+                    // The personal discount is applied by the bot at purchase time.
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            fullPrice,
+                            style = MaterialTheme.typography.bodySmall,
+                            textDecoration = TextDecoration.LineThrough,
+                        )
+                        Text(
+                            formatRub(period.priceKopeks * (100 - discountPercent) / 100),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                } else {
+                    Text(fullPrice, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                }
             }
         }
     }
@@ -680,7 +784,7 @@ class LoginActivity : BaseComponentActivity() {
     }
 
     /** [autoTrial]: the user registered just now — start the free trial without an extra tap. */
-    private fun loadAccount(notice: String? = null, autoTrial: Boolean = false) {
+    private fun loadAccount(notice: String? = null, autoTrial: Boolean = false, noticeIsError: Boolean = true) {
         state = UiState.Busy(R.string.freedom_loading)
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -691,7 +795,7 @@ class LoginActivity : BaseComponentActivity() {
                     if (autoTrial && !info.hasActive && trial?.isAvailable == true && !trial.requiresPayment) {
                         startTrial()
                     } else {
-                        state = UiState.Account(info, notice)
+                        state = UiState.Account(info, notice, noticeIsError)
                     }
                 }
             } catch (e: Exception) {
@@ -728,6 +832,60 @@ class LoginActivity : BaseComponentActivity() {
         }
         state = UiState.Error(result.message)
     }
+
+    // ---- promo ----
+
+    private fun claimOffer(info: AccountManager.AccountInfo, offer: CabinetApi.PromoOffer) {
+        state = UiState.Busy(R.string.freedom_loading)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                AccountManager.withToken { CabinetApi.claimOffer(it, offer.id) }
+                withContext(Dispatchers.Main) {
+                    loadAccount(notice = getString(R.string.freedom_offer_claimed, offer.discountPercent ?: 0), noticeIsError = false)
+                }
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Freedom: claim offer failed", e)
+                withContext(Dispatchers.Main) { state = UiState.Account(info, e.message) }
+            }
+        }
+    }
+
+    private fun activatePromocode(info: AccountManager.AccountInfo, code: String) {
+        if (code.isEmpty()) return
+        state = UiState.Busy(R.string.freedom_promo_applying)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val result = AccountManager.withToken { CabinetApi.activatePromocode(it, code) }
+                // Days or a trial may have been added: refresh the imported subscription.
+                AccountManager.setupSubscription(applicationContext)
+                val text = result.bonusDescription?.takeIf { it.isNotBlank() }
+                    ?.let { getString(R.string.freedom_promo_done_with, it) }
+                    ?: getString(R.string.freedom_promo_done)
+                withContext(Dispatchers.Main) { loadAccount(notice = text, noticeIsError = false) }
+            } catch (e: CabinetApi.ApiException) {
+                LogUtil.w(AppConfig.TAG, "Freedom: promo code rejected: ${e.errorCode}")
+                withContext(Dispatchers.Main) { state = UiState.Account(info, promoError(e)) }
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Freedom: promo code failed", e)
+                withContext(Dispatchers.Main) { state = UiState.Account(info, e.message) }
+            }
+        }
+    }
+
+    private fun promoError(e: CabinetApi.ApiException): String = getString(
+        when (e.errorCode) {
+            "not_found" -> R.string.freedom_promo_err_not_found
+            "expired", "inactive", "not_yet_valid" -> R.string.freedom_promo_err_expired
+            "used" -> R.string.freedom_promo_err_used
+            "already_used_by_user" -> R.string.freedom_promo_err_already
+            "active_discount_exists" -> R.string.freedom_promo_err_discount
+            "no_subscription_for_days" -> R.string.freedom_promo_err_no_sub
+            "not_first_purchase" -> R.string.freedom_promo_err_first
+            "trial_subscription_exists" -> R.string.freedom_promo_err_trial
+            "daily_limit" -> R.string.freedom_promo_err_limit
+            else -> R.string.freedom_promo_err_other
+        }
+    )
 
     // ---- purchase ----
 
