@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -33,10 +34,28 @@ import com.v2ray.ang.R
 import com.v2ray.ang.dto.entities.SubscriptionUsageInfo
 import com.v2ray.ang.extension.toTrafficString
 import com.v2ray.ang.handler.SubscriptionInfoParser
-import com.v2ray.ang.util.Utils
 
 private const val MILLIS_PER_SECOND = 1000L
-private const val EXPIRY_DATE_PATTERN = "yyyy-MM-dd"
+/**
+ * Freedom VPN: expiry date in the app language's short numeric form with a four-digit year
+ * (ru: 18.12.2026, en: 12/18/2026) instead of the fixed ISO "yyyy-MM-dd".
+ */
+internal fun formatExpiryDate(
+    millis: Long,
+    locale: java.util.Locale,
+    timeZone: java.util.TimeZone = java.util.TimeZone.getDefault(),
+): String {
+    val base = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT, locale)
+    val format = (base as? java.text.SimpleDateFormat)?.let {
+        val pattern = it.toPattern()
+        java.text.SimpleDateFormat(
+            if (pattern.contains("yyyy")) pattern else pattern.replace(Regex("y+"), "yyyy"),
+            locale,
+        )
+    } ?: base
+    format.timeZone = timeZone
+    return format.format(java.util.Date(millis))
+}
 private const val NO_EXPIRY_SYMBOL = "\u221E"
 private const val CARD_ALPHA = 0.97f
 
@@ -192,7 +211,7 @@ private fun StatsRow(model: SubscriptionInfoUiModel) {
         Spacer(Modifier.size(8.dp))
         Text(
             // No expiry date means the subscription never expires.
-            text = model.expireMillis?.let { Utils.formatTimestamp(it, EXPIRY_DATE_PATTERN) } ?: NO_EXPIRY_SYMBOL,
+            text = model.expireMillis?.let { formatExpiryDate(it, LocalConfiguration.current.locales[0]) } ?: NO_EXPIRY_SYMBOL,
             style = figuresStyle,
             color = if (model.expired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
