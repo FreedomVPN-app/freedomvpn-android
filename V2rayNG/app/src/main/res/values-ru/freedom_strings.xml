@@ -106,4 +106,8 @@
     <string name="freedom_promo_err_trial">У вас уже есть подписка, этот промокод для новых пользователей</string>
     <string name="freedom_promo_err_limit">Слишком много попыток за сегодня, попробуйте завтра</string>
     <string name="freedom_promo_err_other">Не удалось применить промокод</string>
+    <string name="freedom_offer_channel">Акции и скидки</string>
+    <string name="freedom_offer_push_title">Для вас скидка %1$d%%</string>
+    <string name="freedom_offer_push_text">Персональное предложение на подписку Freedom VPN. Нажмите, чтобы получить скидку.</string>
+    <string name="freedom_offer_push_text_until">Персональное предложение на подписку до %2$s. Нажмите, чтобы получить скидку %1$d%%.</string>
 </resources>

@@ -104,4 +104,8 @@
     <string name="freedom_promo_err_trial">You already have a subscription; this code is for new users</string>
     <string name="freedom_promo_err_limit">Too many attempts today, try again tomorrow</string>
     <string name="freedom_promo_err_other">Could not apply the promo code</string>
+    <string name="freedom_offer_channel">Offers and discounts</string>
+    <string name="freedom_offer_push_title">A %1$d%% discount for you</string>
+    <string name="freedom_offer_push_text">A personal offer on your Freedom VPN subscription. Tap to get the discount.</string>
+    <string name="freedom_offer_push_text_until">A personal subscription offer until %2$s. Tap to get your %1$d%% discount.</string>
 </resources>

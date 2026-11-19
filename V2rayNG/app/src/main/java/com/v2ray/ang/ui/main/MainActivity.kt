@@ -105,6 +105,8 @@ class MainActivity : HelperBaseComponentActivity() {
         com.v2ray.ang.freedom.ExpiryReminder.schedule(this)
         // Freedom VPN: weekly refresh of the RoscomVPN geo databases
         com.v2ray.ang.freedom.GeoUpdater.schedule(this)
+        // Freedom VPN: push about new personal offers from the bot
+        com.v2ray.ang.freedom.OfferNotifier.schedule(this)
     }
 
     // Freedom VPN: after sign-in / link import the existing main screen is brought to front

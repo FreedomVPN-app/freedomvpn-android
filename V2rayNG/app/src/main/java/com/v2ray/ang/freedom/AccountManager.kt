@@ -153,6 +153,7 @@ object AccountManager {
             .orEmpty()
         val discount = optional("active discount") { withToken { CabinetApi.activeDiscount(it) } }
             ?.takeIf { it.isActive && it.discountPercent > 0 }
+        OfferNotifier.markSeen(offers)
         return AccountInfo(sub, trial, offers, discount)
     }
 
