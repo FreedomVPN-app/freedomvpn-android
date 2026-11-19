@@ -23,15 +23,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.v2ray.ang.R
 import com.v2ray.ang.ui.compose.AppDivider
-import com.v2ray.ang.ui.compose.LocalDarkTheme
 import com.v2ray.ang.ui.compose.verticalScrollbar
 
 enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRes: Int) {
@@ -40,7 +36,7 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
     Routing(R.drawable.ic_routing_24dp, R.string.routing_settings_title),
     UserAssets(R.drawable.ic_file_24dp, R.string.title_user_asset_setting),
     Settings(R.drawable.ic_settings_24dp, R.string.title_settings),
-    Promotion(R.drawable.ic_promotion_24dp, R.string.freedom_account),
+    Promotion(R.drawable.ic_freedom_person_24dp, R.string.freedom_account),
     /** Freedom VPN: the web cabinet in the browser. */
     Cabinet(R.drawable.ic_freedom_web_24dp, R.string.freedom_cabinet),
     Logcat(R.drawable.ic_logcat_24dp, R.string.title_logcat),
@@ -49,21 +45,20 @@ enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRe
     About(R.drawable.ic_about_24dp, R.string.title_about)
 }
 
-private val primaryDrawerItems = listOf(
-    MainDestination.Subscriptions,
-    MainDestination.PerAppProxy,
-    MainDestination.Routing,
-    MainDestination.UserAssets,
-    MainDestination.Settings
-)
+/** Freedom VPN: drawer sections — account, everyday settings, advanced (with a header), service. */
+private data class DrawerSection(@StringRes val headerRes: Int?, val items: List<MainDestination>)
 
-private val drawerItems = primaryDrawerItems + listOf(
-    MainDestination.Promotion,
-    MainDestination.Cabinet,
-    MainDestination.Logcat,
-    MainDestination.CheckUpdate,
-    MainDestination.BackupRestore,
-    MainDestination.About
+private val drawerSections = listOf(
+    DrawerSection(null, listOf(MainDestination.Promotion, MainDestination.Cabinet)),
+    DrawerSection(null, listOf(MainDestination.PerAppProxy, MainDestination.Settings)),
+    DrawerSection(
+        R.string.freedom_drawer_advanced,
+        listOf(MainDestination.Subscriptions, MainDestination.Routing, MainDestination.UserAssets),
+    ),
+    DrawerSection(
+        null,
+        listOf(MainDestination.Logcat, MainDestination.BackupRestore, MainDestination.CheckUpdate, MainDestination.About),
+    ),
 )
 
 @Composable
@@ -92,16 +87,12 @@ fun MainDrawerContent(drawerState: DrawerState, onNavigate: (MainDestination) ->
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    val isDarkTheme = LocalDarkTheme.current
                     Image(
                         painter = painterResource(R.mipmap.ic_launcher_foreground),
                         contentDescription = null,
                         modifier = Modifier.size(120.dp),
-                        colorFilter = if (isDarkTheme) {
-                            ColorFilter.tint(Color.White, BlendMode.SrcIn)
-                        } else {
-                            null
-                        }
+                        // Freedom VPN: the teal globe stays in its colors in the dark theme
+                        colorFilter = null as androidx.compose.ui.graphics.ColorFilter?
                     )
                     Text(
                         text = stringResource(R.string.app_name),
@@ -110,15 +101,23 @@ fun MainDrawerContent(drawerState: DrawerState, onNavigate: (MainDestination) ->
                     )
                 }
             }
-            drawerItems.forEachIndexed { index, item ->
-                if (index == primaryDrawerItems.size) AppDivider()
-                NavigationDrawerItem(
+            drawerSections.forEachIndexed { sectionIndex, section ->
+                if (sectionIndex > 0) AppDivider()
+                section.headerRes?.let {
+                    Text(
+                        text = stringResource(it),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 28.dp, top = 12.dp, bottom = 4.dp),
+                    )
+                }
+                section.items.forEach { item -> NavigationDrawerItem(
                     label = { Text(stringResource(item.labelRes)) },
                     selected = false,
                     onClick = { onNavigate(item) },
                     icon = { Icon(painterResource(item.iconRes), contentDescription = null) },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
+                ) }
             }
         }
     }

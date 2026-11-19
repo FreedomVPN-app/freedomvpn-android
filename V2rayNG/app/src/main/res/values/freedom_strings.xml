@@ -113,4 +113,5 @@
     <string name="freedom_home_no_servers">No servers yet</string>
     <string name="freedom_home_no_servers_hint">Open “Account and subscription” and tap “Connect” or “Try free” — the servers load by themselves.</string>
     <string name="freedom_home_update">Update the server list</string>
+    <string name="freedom_drawer_advanced">Advanced</string>
 </resources>

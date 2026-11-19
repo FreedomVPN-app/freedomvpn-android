@@ -115,4 +115,5 @@
     <string name="freedom_home_no_servers">Серверов пока нет</string>
     <string name="freedom_home_no_servers_hint">Откройте «Аккаунт и подписка» и нажмите «Подключиться» или «Попробовать бесплатно» — серверы загрузятся сами.</string>
     <string name="freedom_home_update">Обновить список серверов</string>
+    <string name="freedom_drawer_advanced">Для опытных</string>
 </resources>
