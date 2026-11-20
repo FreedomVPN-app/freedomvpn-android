@@ -75,32 +75,39 @@ object UpdateCheckerManager {
         }
     }
 
-    private fun compareVersions(version1: String, version2: String): Int {
+    /**
+     * Compares dotted versions part by part. Freedom VPN: each part counts only its leading digits,
+     * so a test build "0.0.30-test" compares as 0.0.30 (lower than any release) instead of throwing.
+     */
+    internal fun compareVersions(version1: String, version2: String): Int {
         val v1 = version1.split(".")
         val v2 = version2.split(".")
 
         for (i in 0 until maxOf(v1.size, v2.size)) {
-            val num1 = if (i < v1.size) v1[i].toInt() else 0
-            val num2 = if (i < v2.size) v2[i].toInt() else 0
-            if (num1 != num2) return num1 - num2
+            val num1 = if (i < v1.size) leadingNumber(v1[i]) else 0
+            val num2 = if (i < v2.size) leadingNumber(v2[i]) else 0
+            if (num1 != num2) return num1.compareTo(num2)
         }
         return 0
     }
 
-    private fun getDownloadUrl(release: GitHubRelease, abi: String): String {
-        val fDroid = "fdroid"
+    private fun leadingNumber(part: String): Long =
+        part.trim().takeWhile { it.isDigit() }.take(18).toLongOrNull() ?: 0L
 
-        val assetsByAbi = release.assets.filter {
-            (it.name.contains(abi, true))
-        }
-
-        val asset = if (BuildConfig.APPLICATION_ID.contains(fDroid, ignoreCase = true)) {
-            assetsByAbi.firstOrNull { it.name.contains(fDroid) }
-        } else {
-            assetsByAbi.firstOrNull { !it.name.contains(fDroid) }
-        }
-
-        return asset?.browserDownloadUrl
+    private fun getDownloadUrl(release: GitHubRelease, abi: String): String =
+        pickDownloadAsset(release.assets, abi, BuildConfig.APPLICATION_ID.contains("fdroid", ignoreCase = true))
+            ?.browserDownloadUrl
             ?: throw IllegalStateException("No compatible APK found")
+
+    /**
+     * APK for this device: the one built for its ABI, else the universal one, else any APK.
+     * Freedom VPN: releases have no x86/x86_64 APK, so emulators and Chromebooks got
+     * "No compatible APK found" and the update check failed.
+     */
+    internal fun pickDownloadAsset(assets: List<GitHubRelease.Asset>, abi: String, fDroid: Boolean): GitHubRelease.Asset? {
+        val flavored = assets.filter { it.name.endsWith(".apk", ignoreCase = true) && it.name.contains("fdroid", ignoreCase = true) == fDroid }
+        return flavored.firstOrNull { it.name.contains(abi, ignoreCase = true) }
+            ?: flavored.firstOrNull { it.name.contains("universal", ignoreCase = true) }
+            ?: flavored.firstOrNull()
     }
 }
