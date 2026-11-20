@@ -28,6 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -148,6 +150,7 @@ class LoginActivity : BaseComponentActivity() {
     @Composable
     override fun ScreenContent() {
         val current = state
+        Box(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -182,6 +185,20 @@ class LoginActivity : BaseComponentActivity() {
                 is UiState.WaitingPayment -> WaitingPaymentContent(current)
                 else -> LoginContent(current)
             }
+        }
+        // Freedom VPN: back arrow like on the other screens; same as system Back (returns to the main screen).
+        IconButton(
+            onClick = { onBackPressedDispatcher.onBackPressed() },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .systemBarsPadding()
+                .padding(4.dp),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_arrow_back_24dp),
+                contentDescription = stringResource(R.string.acc_back),
+            )
+        }
         }
     }
 
