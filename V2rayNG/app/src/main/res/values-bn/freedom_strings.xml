@@ -23,4 +23,5 @@
         <item quantity="other">%d দিন</item>
     </plurals>
     <string name="freedom_profile_updated">সার্ভার তালিকা আপডেট হয়েছে</string>
+    <string name="freedom_home_ping_server">পিং যাচাই: %1$s</string>
 </resources>

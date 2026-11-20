@@ -152,6 +152,7 @@ internal fun MainHome(
                             selected = row.guid == uiState.selectedGuid,
                             testing = uiState.isTesting,
                             onSelect = { onAction(MainAction.SelectServer(row.guid)) },
+                            onPing = { onAction(MainAction.TestRealServer(row.guid)) },
                         )
                     }
                 }
@@ -421,7 +422,13 @@ private fun ServersHeader(testing: Boolean, onTest: () -> Unit, onRefresh: () ->
 }
 
 @Composable
-private fun ServerRow(row: ServerRowUiModel, selected: Boolean, testing: Boolean, onSelect: () -> Unit) {
+private fun ServerRow(
+    row: ServerRowUiModel,
+    selected: Boolean,
+    testing: Boolean,
+    onSelect: () -> Unit,
+    onPing: () -> Unit,
+) {
     val scheme = MaterialTheme.colorScheme
     val (flag, name) = splitServerName(row.remarks)
     val stateText = stringResource(if (selected) R.string.freedom_home_selected else R.string.freedom_home_not_selected)
@@ -454,7 +461,7 @@ private fun ServerRow(row: ServerRowUiModel, selected: Boolean, testing: Boolean
                 modifier = Modifier.weight(1f),
             )
             Spacer(Modifier.size(8.dp))
-            DelayChip(row.testDelayMillis, testing)
+            DelayChip(row.testDelayMillis, testing, serverName = name, onPing = onPing)
             if (selected) {
                 Spacer(Modifier.size(8.dp))
                 Surface(shape = CircleShape, color = scheme.primary, modifier = Modifier.size(24.dp)) {
@@ -472,11 +479,15 @@ private fun ServerRow(row: ServerRowUiModel, selected: Boolean, testing: Boolean
     }
 }
 
-/** Measured delay as a colored pill: green / amber / red by speed, "no connection", "…" while testing. */
+/**
+ * Measured delay as a colored pill (green / amber / red by speed, "no connection", "…" while testing).
+ * Tapping it measures this one server again; with no result yet it shows a speed icon to tap.
+ */
 @Composable
-private fun DelayChip(delay: Long, testing: Boolean) {
+private fun DelayChip(delay: Long, testing: Boolean, serverName: String, onPing: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
     val dark = com.v2ray.ang.ui.compose.LocalDarkTheme.current
-    val text: String
+    val text: String?
     val fg: Color
     val bg: Color
     when {
@@ -485,29 +496,53 @@ private fun DelayChip(delay: Long, testing: Boolean) {
             when {
                 delay < 300 -> { fg = if (dark) Color(0xFF4ADE80) else Color(0xFF15803D); bg = if (dark) Color(0xFF123524) else Color(0xFFDCF2E3) }
                 delay < 800 -> { fg = if (dark) Color(0xFFFACC15) else Color(0xFF8A5300); bg = if (dark) Color(0xFF3A3112) else Color(0xFFFBEBD0) }
-                else -> { fg = MaterialTheme.colorScheme.onErrorContainer; bg = MaterialTheme.colorScheme.errorContainer }
+                else -> { fg = scheme.onErrorContainer; bg = scheme.errorContainer }
             }
         }
         delay < 0 -> {
             text = stringResource(R.string.freedom_home_no_connection)
-            fg = MaterialTheme.colorScheme.onErrorContainer
-            bg = MaterialTheme.colorScheme.errorContainer
+            fg = scheme.onErrorContainer
+            bg = scheme.errorContainer
         }
         testing -> {
             text = "…"
-            fg = MaterialTheme.colorScheme.onSurfaceVariant
-            bg = MaterialTheme.colorScheme.surfaceContainerLow
+            fg = scheme.onSurfaceVariant
+            bg = scheme.surfaceContainerLow
         }
-        else -> return
+        else -> {
+            text = null
+            fg = scheme.primary
+            bg = scheme.surfaceContainerLow
+        }
     }
-    Surface(shape = RoundedCornerShape(50), color = bg) {
-        Text(
-            text,
-            color = fg,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-        )
+    val actionLabel = stringResource(R.string.freedom_home_ping_server, serverName)
+    Surface(
+        onClick = onPing,
+        enabled = !testing,
+        shape = RoundedCornerShape(50),
+        color = bg,
+        modifier = Modifier
+            .heightIn(min = 32.dp)
+            .semantics { contentDescription = if (text != null) "$text. $actionLabel" else actionLabel },
+    ) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+            if (text != null) {
+                Text(
+                    text,
+                    color = fg,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clearAndSetSemantics {},
+                )
+            } else {
+                Icon(
+                    painterResource(R.drawable.ic_freedom_speed_24dp),
+                    contentDescription = null,
+                    tint = fg,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+        }
     }
 }
 

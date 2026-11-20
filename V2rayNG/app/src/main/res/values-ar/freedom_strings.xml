@@ -27,4 +27,5 @@
         <item quantity="other">%d يوم</item>
     </plurals>
     <string name="freedom_profile_updated">تم تحديث قائمة الخوادم</string>
+    <string name="freedom_home_ping_server">فحص زمن الاستجابة: %1$s</string>
 </resources>

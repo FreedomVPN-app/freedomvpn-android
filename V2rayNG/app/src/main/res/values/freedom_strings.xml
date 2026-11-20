@@ -144,4 +144,5 @@
         <item quantity="other">%d days</item>
     </plurals>
     <string name="freedom_profile_updated">Server list updated</string>
+    <string name="freedom_home_ping_server">Check ping: %1$s</string>
 </resources>

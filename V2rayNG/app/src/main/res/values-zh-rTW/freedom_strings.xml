@@ -22,4 +22,5 @@
         <item quantity="other">%d 天</item>
     </plurals>
     <string name="freedom_profile_updated">伺服器列表已更新</string>
+    <string name="freedom_home_ping_server">檢測延遲：%1$s</string>
 </resources>

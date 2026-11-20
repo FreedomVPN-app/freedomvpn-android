@@ -289,6 +289,7 @@ class MainViewModel(
             MainAction.RefreshGroups -> setupGroupTab(forceRefresh = true)
             MainAction.TestAllServers -> testAllRealPing(true)
             MainAction.TestRealAllServers -> testAllRealPing()
+            is MainAction.TestRealServer -> testAllRealPing(onlyGuids = listOf(action.guid))
             MainAction.CancelTesting -> cancelAllPing()
             MainAction.RemoveAllServers -> removeAllServerAsync()
             MainAction.RemoveDuplicateServers -> removeDuplicateServerAsync()
@@ -861,22 +862,29 @@ class MainViewModel(
         }
     }
 
-    fun testAllRealPing(onlyTcp: Boolean = false) {
+    /**
+     * Real-delay test of the selected group's servers. [onlyGuids] (Freedom VPN: one server tapped on
+     * the home screen) limits the test, and the reset of old results, to those servers.
+     */
+    fun testAllRealPing(onlyTcp: Boolean = false, onlyGuids: List<String>? = null) {
         cancelAllPing()
         val groupId = uiState.value.selectedGroupId
-        val servers = currentServers()
+        val servers = currentServers().let { all ->
+            if (onlyGuids == null) all else onlyGuids.toHashSet().let { keep -> all.filter { it.guid in keep } }
+        }
         if (servers.isEmpty()) {
             return
         }
         val serverGuids = servers.map { it.guid }
+        val tested = serverGuids.toHashSet()
         mutableServerGroupState(groupId).update { current ->
             current.copy(
                 servers = current.servers.map { server ->
-                    if (server.testDelayMillis == 0L) server
+                    if (server.testDelayMillis == 0L || server.guid !in tested) server
                     else server.copy(testDelayMillis = 0L)
                 },
                 rows = current.rows.map { row ->
-                    if (row.testDelayMillis == 0L) row
+                    if (row.testDelayMillis == 0L || row.guid !in tested) row
                     else row.copy(testDelayMillis = 0L)
                 }
             )
@@ -885,7 +893,7 @@ class MainViewModel(
         val message = TestServiceMessage(
             key = AppConfig.MSG_MEASURE_CONFIG_START,
             subscriptionId = groupId,
-            serverGuids = if (keywordFilter.isNotEmpty()) serverGuids else emptyList(),
+            serverGuids = if (keywordFilter.isNotEmpty() || onlyGuids != null) serverGuids else emptyList(),
             onlyTcp = onlyTcp
         )
         _uiState.update {

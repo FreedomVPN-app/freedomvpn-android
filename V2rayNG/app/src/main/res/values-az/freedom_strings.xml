@@ -23,4 +23,5 @@
         <item quantity="other">%d gün</item>
     </plurals>
     <string name="freedom_profile_updated">Server siyahısı yeniləndi</string>
+    <string name="freedom_home_ping_server">Pingi yoxla: %1$s</string>
 </resources>

@@ -43,6 +43,8 @@ sealed interface MainAction {
     data object TestCurrentServer : MainAction
     data object TestAllServers : MainAction
     data object TestRealAllServers : MainAction
+    /** Freedom VPN: real delay of one server (tapped on the home screen). */
+    data class TestRealServer(val guid: String) : MainAction
     data object CancelTesting : MainAction
     data object RemoveAllServers : MainAction
     data object RemoveDuplicateServers : MainAction

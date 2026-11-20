@@ -23,4 +23,5 @@
         <item quantity="other">%d روز</item>
     </plurals>
     <string name="freedom_profile_updated">فهرست سرورها به‌روزرسانی شد</string>
+    <string name="freedom_home_ping_server">بررسی پینگ: %1$s</string>
 </resources>

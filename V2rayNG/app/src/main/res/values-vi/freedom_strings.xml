@@ -22,4 +22,5 @@
         <item quantity="other">%d ngày</item>
     </plurals>
     <string name="freedom_profile_updated">Đã cập nhật danh sách máy chủ</string>
+    <string name="freedom_home_ping_server">Kiểm tra ping: %1$s</string>
 </resources>
