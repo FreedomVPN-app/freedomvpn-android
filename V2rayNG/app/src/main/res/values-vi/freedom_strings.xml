@@ -4,4 +4,21 @@
     <string name="freedom_update_channel">Cập nhật ứng dụng</string>
     <string name="freedom_update_push_title">Đã có Freedom VPN %1$s</string>
     <string name="freedom_update_push_text">Nhấn để tải bản cập nhật. Gói đăng ký và cài đặt của bạn được giữ nguyên.</string>
+    <string name="freedom_home_all_servers_and_subs">Tất cả máy chủ và gói đăng ký</string>
+    <string name="freedom_home_tap_to_connect">Nhấn để bảo vệ kết nối</string>
+    <string name="freedom_home_connected_to">Đã bảo vệ · %1$s</string>
+    <string name="freedom_home_traffic_of">%1$s / %2$s</string>
+    <string name="freedom_home_expired">Gói đăng ký đã hết hạn</string>
+    <string name="freedom_home_until">đến %1$s</string>
+    <string name="freedom_home_invite_short">Mời</string>
+    <string name="freedom_home_servers">Máy chủ</string>
+    <string name="freedom_home_ping">Ping</string>
+    <string name="freedom_home_ping_running">Đang kiểm tra…</string>
+    <string name="freedom_home_selected">Đã chọn</string>
+    <string name="freedom_home_not_selected">Chưa chọn</string>
+    <string name="freedom_nav_home">Trang chủ</string>
+    <string name="freedom_nav_more">Thêm</string>
+    <plurals name="freedom_home_days_left">
+        <item quantity="other">%d ngày</item>
+    </plurals>
 </resources>

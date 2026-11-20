@@ -4,4 +4,26 @@
     <string name="freedom_update_channel">تحديثات التطبيق</string>
     <string name="freedom_update_push_title">الإصدار %1$s من Freedom VPN متاح</string>
     <string name="freedom_update_push_text">اضغط لتنزيل التحديث. سيبقى اشتراكك وإعداداتك كما هي.</string>
+    <string name="freedom_home_all_servers_and_subs">جميع الخوادم والاشتراكات</string>
+    <string name="freedom_home_tap_to_connect">اضغط لحماية اتصالك</string>
+    <string name="freedom_home_connected_to">محمي · %1$s</string>
+    <string name="freedom_home_traffic_of">%1$s من %2$s</string>
+    <string name="freedom_home_expired">انتهى الاشتراك</string>
+    <string name="freedom_home_until">حتى %1$s</string>
+    <string name="freedom_home_invite_short">دعوة</string>
+    <string name="freedom_home_servers">الخوادم</string>
+    <string name="freedom_home_ping">زمن الاستجابة</string>
+    <string name="freedom_home_ping_running">جارٍ الفحص…</string>
+    <string name="freedom_home_selected">محدد</string>
+    <string name="freedom_home_not_selected">غير محدد</string>
+    <string name="freedom_nav_home">الرئيسية</string>
+    <string name="freedom_nav_more">المزيد</string>
+    <plurals name="freedom_home_days_left">
+        <item quantity="zero">%d يوم</item>
+        <item quantity="one">يوم واحد</item>
+        <item quantity="two">يومان</item>
+        <item quantity="few">%d أيام</item>
+        <item quantity="many">%d يومًا</item>
+        <item quantity="other">%d يوم</item>
+    </plurals>
 </resources>

@@ -70,6 +70,8 @@ fun MainScreen(
         mutableStateOf<ServerDeleteTarget?>(null)
     }
 
+    // Freedom VPN: the "More" tab's menu on the home screen
+    var showMore by rememberSaveable { mutableStateOf(false) }
     var shareTarget by remember { mutableStateOf<Triple<String, ProfileItem, Boolean>?>(null) }
     val removeServer: (String, String) -> Unit = { guid, profileName ->
         if (confirmRemove) {
@@ -150,8 +152,16 @@ fun MainScreen(
     // Freedom VPN: system Back on the full server list returns to the simple home screen
     BackHandler(enabled = !uiState.simpleMode) { onAction(MainAction.SetSimpleMode(true)) }
 
+    if (showMore) {
+        HomeMoreSheet(onDismiss = { showMore = false }, onNavigate = onNavigate)
+    }
+    val homeGroup = groups.firstOrNull { it.id == uiState.selectedGroupId } ?: groups.firstOrNull()
+    val supportUrl = homeGroup?.usageInfo?.supportUrl
+
     ModalNavigationDrawer(
         drawerState = drawerState,
+        // Freedom VPN: the home screen uses the bottom bar; the side menu stays on the full server list.
+        gesturesEnabled = !uiState.simpleMode,
         drawerContent = {
             MainDrawerContent(
                 drawerState = drawerState,
@@ -168,8 +178,8 @@ fun MainScreen(
                 if (uiState.simpleMode) {
                     SimpleTopBar(
                         isLoading = isLoading,
-                        onMenuClick = { scope.launch { drawerState.open() } },
-                        onShowServers = { onAction(MainAction.SetSimpleMode(false)) },
+                        supportUrl = supportUrl,
+                        onOpenSupport = { url -> onAction(MainAction.OpenSubscriptionLink(url)) },
                     )
                 } else MainTopBar(
                     onBackToHome = { onAction(MainAction.SetSimpleMode(true)) },
@@ -205,6 +215,18 @@ fun MainScreen(
                 )
             },
             floatingActionButton = {},
+            bottomBar = {
+                if (uiState.simpleMode) {
+                    HomeBottomBar { tab ->
+                        when (tab) {
+                            HomeTab.Home -> Unit
+                            HomeTab.Servers -> onAction(MainAction.SetSimpleMode(false))
+                            HomeTab.Account -> onNavigate(MainDestination.Promotion)
+                            HomeTab.More -> showMore = true
+                        }
+                    }
+                }
+            },
         ) { innerPadding ->
             if (uiState.simpleMode) {
                 MainHome(

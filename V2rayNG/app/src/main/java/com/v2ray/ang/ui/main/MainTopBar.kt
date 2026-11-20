@@ -127,21 +127,26 @@ fun MainTopBar(
 @Composable
 fun SimpleTopBar(
     isLoading: Boolean,
-    onMenuClick: () -> Unit,
-    onShowServers: () -> Unit,
+    supportUrl: String?,
+    onOpenSupport: (String) -> Unit,
 ) {
     AppTopBar(
         title = stringResource(R.string.app_name),
         onBackClick = {},
         isLoading = isLoading,
-        navigationIcon = {
-            IconButton(onClick = onMenuClick) {
-                Icon(painterResource(R.drawable.ic_menu_24dp), contentDescription = stringResource(R.string.acc_open_menu))
-            }
-        },
+        navigationIcon = {},
         actions = {
-            IconButton(onClick = onShowServers) {
-                Icon(painterResource(R.drawable.ic_freedom_list_24dp), contentDescription = stringResource(R.string.freedom_home_all_servers))
+            // Freedom VPN: support chat of the subscription (Telegram or a web page)
+            supportUrl?.let { url ->
+                IconButton(onClick = { onOpenSupport(url) }) {
+                    Icon(
+                        painterResource(
+                            if (com.v2ray.ang.handler.SubscriptionInfoParser.isTelegramLink(url)) R.drawable.ic_telegram_24dp
+                            else R.drawable.ic_feedback_24dp
+                        ),
+                        contentDescription = stringResource(R.string.sub_info_open_support),
+                    )
+                }
             }
         },
     )

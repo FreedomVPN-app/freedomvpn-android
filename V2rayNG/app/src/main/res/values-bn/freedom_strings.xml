@@ -4,4 +4,22 @@
     <string name="freedom_update_channel">অ্যাপ আপডেট</string>
     <string name="freedom_update_push_title">Freedom VPN %1$s উপলব্ধ</string>
     <string name="freedom_update_push_text">আপডেট ডাউনলোড করতে ট্যাপ করুন। আপনার সাবস্ক্রিপশন ও সেটিংস অপরিবর্তিত থাকবে।</string>
+    <string name="freedom_home_all_servers_and_subs">সব সার্ভার ও সাবস্ক্রিপশন</string>
+    <string name="freedom_home_tap_to_connect">সংযোগ সুরক্ষিত করতে ট্যাপ করুন</string>
+    <string name="freedom_home_connected_to">সুরক্ষিত · %1$s</string>
+    <string name="freedom_home_traffic_of">%1$s / %2$s</string>
+    <string name="freedom_home_expired">সাবস্ক্রিপশন শেষ হয়েছে</string>
+    <string name="freedom_home_until">%1$s পর্যন্ত</string>
+    <string name="freedom_home_invite_short">আমন্ত্রণ</string>
+    <string name="freedom_home_servers">সার্ভার</string>
+    <string name="freedom_home_ping">পিং</string>
+    <string name="freedom_home_ping_running">যাচাই করা হচ্ছে…</string>
+    <string name="freedom_home_selected">নির্বাচিত</string>
+    <string name="freedom_home_not_selected">নির্বাচিত নয়</string>
+    <string name="freedom_nav_home">হোম</string>
+    <string name="freedom_nav_more">আরও</string>
+    <plurals name="freedom_home_days_left">
+        <item quantity="one">%d দিন</item>
+        <item quantity="other">%d দিন</item>
+    </plurals>
 </resources>

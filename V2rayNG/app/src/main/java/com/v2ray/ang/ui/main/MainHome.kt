@@ -2,6 +2,7 @@ package com.v2ray.ang.ui.main
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,35 +15,34 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -53,11 +53,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.v2ray.ang.R
+import com.v2ray.ang.extension.toTrafficString
 
+private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
 
 /**
- * Freedom VPN: simple home screen — subscription card, one big connect button and a server picker.
- * State comes from [MainViewModel]; every user operation goes through [onAction] / [onNavigate].
+ * Freedom VPN: home screen — connection card with a round button, a one-line subscription strip
+ * and the subscription's servers right below. State comes from [MainViewModel]; every user
+ * operation goes through [onAction] / [onNavigate].
  */
 @Composable
 internal fun MainHome(
@@ -69,14 +72,13 @@ internal fun MainHome(
     contentPadding: PaddingValues,
 ) {
     val group = uiState.groups.firstOrNull { it.id == uiState.selectedGroupId } ?: uiState.groups.firstOrNull()
-    var showPicker by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(contentPadding)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (uiState.showFreedomPromo) {
@@ -95,16 +97,6 @@ internal fun MainHome(
         val rows = groupState.rows
         val selected = rows.firstOrNull { it.guid == uiState.selectedGuid }
 
-        group.usageInfo?.let { info ->
-            SubscriptionInfoCard(
-                info = info,
-                fallbackTitle = group.remarks,
-                onOpenLink = { url -> onAction(MainAction.OpenSubscriptionLink(url)) },
-                onRefresh = { onAction(MainAction.UpdateGroupSubscription(group.id)) },
-                onInvite = if (isFreedomGroup(group.remarks)) ({ onAction(MainAction.OpenInvite) }) else null,
-            )
-        }
-
         if (rows.isEmpty()) {
             // The group has no servers yet (link not imported, or the subscription update failed).
             EmptyGroup(
@@ -117,56 +109,403 @@ internal fun MainHome(
         LaunchedEffect(group.id, rows.firstOrNull()?.guid, selected == null) {
             if (selected == null) rows.firstOrNull()?.let { onAction(MainAction.SelectServer(it.guid)) }
         }
-
-        Spacer(Modifier.height(36.dp))
-        ConnectButton(isRunning = uiState.isRunning, onClick = { onAction(MainAction.ToggleService) })
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = stringResource(
-                if (uiState.isRunning) R.string.freedom_home_connected else R.string.freedom_home_disconnected
-            ),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-        )
-        if (uiState.isRunning && displayText.isNotBlank()) {
-            Spacer(Modifier.height(4.dp))
-            TextButton(onClick = { onAction(MainAction.TestCurrentServer) }) {
-                Text(displayText, textAlign = TextAlign.Center, maxLines = 2)
-            }
+        // Measure every server once when the list first shows (results stay until the next test).
+        LaunchedEffect(group.id) {
+            if (!uiState.isTesting && rows.all { it.testDelayMillis == 0L }) onAction(MainAction.TestRealAllServers)
         }
 
-        Spacer(Modifier.height(28.dp))
-        ServerSelector(
-            title = selected?.remarks ?: stringResource(R.string.freedom_home_choose_server),
-            delay = selected?.testDelayMillis ?: 0L,
-            testing = uiState.isTesting,
-            enabled = rows.isNotEmpty(),
-            onClick = { showPicker = true },
+        ConnectionCard(
+            isRunning = uiState.isRunning,
+            serverName = selected?.remarks?.let { splitServerName(it).second },
+            displayText = displayText,
+            onToggle = { onAction(MainAction.ToggleService) },
+            onTestCurrent = { onAction(MainAction.TestCurrentServer) },
         )
+
+        group.usageInfo?.let { info ->
+            Spacer(Modifier.height(12.dp))
+            val model = remember(info) { buildSubscriptionInfoUiModel(info, System.currentTimeMillis()) }
+            SubscriptionStrip(
+                model = model,
+                onInvite = if (isFreedomGroup(group.remarks)) ({ onAction(MainAction.OpenInvite) }) else null,
+            )
+        }
 
         Spacer(Modifier.height(20.dp))
-        OutlinedButton(
-            onClick = { onNavigate(MainDestination.Promotion) },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Icon(painterResource(R.drawable.ic_freedom_person_24dp), contentDescription = null)
-            Spacer(Modifier.size(8.dp))
-            Text(stringResource(R.string.freedom_home_account))
-        }
-    }
-
-    if (showPicker && group != null) {
-        val groupState by mainViewModel.serverGroupState(group.id).collectAsStateWithLifecycle()
-        ServerPickerDialog(
-            rows = groupState.rows,
-            selectedGuid = uiState.selectedGuid,
+        ServersHeader(
             testing = uiState.isTesting,
             onTest = { onAction(MainAction.TestRealAllServers) },
-            onSelect = { guid ->
-                showPicker = false
-                onAction(MainAction.SelectServer(guid))
+            onRefresh = { onAction(MainAction.UpdateGroupSubscription(group.id)) },
+        )
+        Spacer(Modifier.height(8.dp))
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(Modifier.padding(6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                rows.forEach { row ->
+                    androidx.compose.runtime.key(row.guid) {
+                        ServerRow(
+                            row = row,
+                            selected = row.guid == uiState.selectedGuid,
+                            testing = uiState.isTesting,
+                            onSelect = { onAction(MainAction.SelectServer(row.guid)) },
+                        )
+                    }
+                }
+            }
+        }
+        TextButton(
+            onClick = { onAction(MainAction.SetSimpleMode(false)) },
+            modifier = Modifier.padding(vertical = 8.dp),
+        ) {
+            Text(stringResource(R.string.freedom_home_all_servers_and_subs))
+        }
+    }
+}
+
+@Composable
+private fun ConnectionCard(
+    isRunning: Boolean,
+    serverName: String?,
+    displayText: String,
+    onToggle: () -> Unit,
+    onTestCurrent: () -> Unit,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val cardColor by animateColorAsState(if (isRunning) scheme.primary else scheme.surfaceContainer, label = "heroCard")
+    val onCard = if (isRunning) scheme.onPrimary else scheme.onSurface
+    Surface(
+        shape = RoundedCornerShape(32.dp),
+        color = cardColor,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            StatusChip(isRunning = isRunning, serverName = serverName, onCard = onCard)
+            Spacer(Modifier.height(20.dp))
+            ConnectButton(isRunning = isRunning, onClick = onToggle)
+            Spacer(Modifier.height(16.dp))
+            if (isRunning) {
+                if (displayText.isNotBlank()) {
+                    TextButton(onClick = onTestCurrent) {
+                        Text(displayText, color = onCard, textAlign = TextAlign.Center, maxLines = 2)
+                    }
+                }
+            } else {
+                Text(
+                    stringResource(R.string.freedom_home_tap_to_connect),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = scheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatusChip(isRunning: Boolean, serverName: String?, onCard: Color) {
+    val scheme = MaterialTheme.colorScheme
+    val text = when {
+        isRunning && !serverName.isNullOrBlank() -> stringResource(R.string.freedom_home_connected_to, serverName)
+        isRunning -> stringResource(R.string.freedom_home_connected)
+        else -> stringResource(R.string.freedom_home_disconnected)
+    }
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = if (isRunning) onCard.copy(alpha = 0.16f) else scheme.surfaceContainerLow,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(if (isRunning) scheme.tertiary else scheme.onSurfaceVariant),
+            )
+            Spacer(Modifier.size(8.dp))
+            Text(
+                text,
+                color = onCard,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ConnectButton(isRunning: Boolean, onClick: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val container by animateColorAsState(if (isRunning) scheme.onPrimary else scheme.primary, label = "connectButton")
+    val content = if (isRunning) scheme.primary else scheme.onPrimary
+    val ring = if (isRunning) scheme.onPrimary.copy(alpha = 0.22f) else scheme.primaryContainer
+    val label = stringResource(if (isRunning) R.string.freedom_home_disconnect else R.string.freedom_home_connect)
+    val state = stringResource(if (isRunning) R.string.freedom_home_connected else R.string.freedom_home_disconnected)
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = container,
+        border = BorderStroke(10.dp, ring),
+        shadowElevation = 4.dp,
+        modifier = Modifier
+            .size(196.dp)
+            .semantics {
+                contentDescription = label
+                stateDescription = state
             },
-            onDismiss = { showPicker = false },
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    painterResource(R.drawable.ic_freedom_power_24dp),
+                    contentDescription = null,
+                    tint = content,
+                    modifier = Modifier.size(60.dp),
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(label, color = content, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold)
+            }
+        }
+    }
+}
+
+/** One line: days left (or traffic), expiry date and traffic, a thin traffic bar, "Invite". */
+@Composable
+private fun SubscriptionStrip(model: SubscriptionInfoUiModel, onInvite: (() -> Unit)?) {
+    val scheme = MaterialTheme.colorScheme
+    val locale = LocalConfiguration.current.locales[0]
+    val totalText = if (model.totalBytes > 0L) model.totalBytes.toTrafficString() else "∞"
+    val traffic = stringResource(R.string.freedom_home_traffic_of, model.usedBytes.toTrafficString(), totalText)
+    val headline = when {
+        model.expired -> stringResource(R.string.freedom_home_expired)
+        model.expireMillis != null -> {
+            val days = freedomDaysLeft(model.expireMillis, System.currentTimeMillis())
+            pluralStringResource(R.plurals.freedom_home_days_left, days, days)
+        }
+        else -> stringResource(R.string.sub_info_unlimited)
+    }
+    val details = listOfNotNull(
+        model.expireMillis?.let { stringResource(R.string.freedom_home_until, formatExpiryDate(it, locale)) },
+        traffic,
+    ).joinToString(" · ")
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        color = scheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 16.dp, end = 10.dp, top = 12.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                Modifier
+                    .weight(1f)
+                    .semantics(mergeDescendants = true) {},
+            ) {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        headline,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = if (model.expired) scheme.error else scheme.onSurface,
+                    )
+                    Spacer(Modifier.size(8.dp))
+                    Text(
+                        details,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (model.trafficLow) scheme.error else scheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                model.trafficFraction?.let { fraction ->
+                    Spacer(Modifier.height(6.dp))
+                    LinearProgressIndicator(
+                        progress = { fraction },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(4.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .clearAndSetSemantics {},
+                        color = if (model.trafficLow) scheme.error else scheme.primary,
+                        trackColor = scheme.surfaceVariant,
+                    )
+                }
+            }
+            if (onInvite != null) {
+                Spacer(Modifier.size(10.dp))
+                Surface(
+                    onClick = onInvite,
+                    shape = RoundedCornerShape(50),
+                    color = scheme.primaryContainer,
+                    modifier = Modifier.heightIn(min = 44.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.ic_freedom_invite_24dp),
+                            contentDescription = null,
+                            tint = scheme.onPrimaryContainer,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.size(6.dp))
+                        Text(
+                            stringResource(R.string.freedom_home_invite_short),
+                            color = scheme.onPrimaryContainer,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ServersHeader(testing: Boolean, onTest: () -> Unit, onRefresh: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    Row(Modifier.fillMaxWidth().padding(start = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            stringResource(R.string.freedom_home_servers),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.weight(1f),
+        )
+        Surface(
+            onClick = onTest,
+            enabled = !testing,
+            shape = RoundedCornerShape(50),
+            color = scheme.surfaceContainer,
+            modifier = Modifier.heightIn(min = 40.dp),
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_freedom_speed_24dp),
+                    contentDescription = null,
+                    tint = scheme.primary,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.size(6.dp))
+                Text(
+                    stringResource(if (testing) R.string.freedom_home_ping_running else R.string.freedom_home_ping),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+        Spacer(Modifier.size(4.dp))
+        IconButton(onClick = onRefresh) {
+            Icon(
+                painterResource(R.drawable.ic_refresh_24dp),
+                contentDescription = stringResource(R.string.freedom_home_update),
+                tint = scheme.primary,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ServerRow(row: ServerRowUiModel, selected: Boolean, testing: Boolean, onSelect: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val (flag, name) = splitServerName(row.remarks)
+    val stateText = stringResource(if (selected) R.string.freedom_home_selected else R.string.freedom_home_not_selected)
+    Surface(
+        shape = RoundedCornerShape(if (selected) 22.dp else 14.dp),
+        color = if (selected) scheme.primaryContainer else Color.Transparent,
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onSelect)
+            .semantics(mergeDescendants = true) { stateDescription = stateText },
+    ) {
+        Row(
+            modifier = Modifier
+                .heightIn(min = 60.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(shape = CircleShape, color = scheme.surfaceContainerLow, modifier = Modifier.size(38.dp)) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(flag ?: "🌐", fontSize = 20.sp, modifier = Modifier.clearAndSetSemantics {})
+                }
+            }
+            Spacer(Modifier.size(12.dp))
+            Text(
+                name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.size(8.dp))
+            DelayChip(row.testDelayMillis, testing)
+            if (selected) {
+                Spacer(Modifier.size(8.dp))
+                Surface(shape = CircleShape, color = scheme.primary, modifier = Modifier.size(24.dp)) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painterResource(R.drawable.ic_freedom_check_24dp),
+                            contentDescription = null,
+                            tint = scheme.onPrimary,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Measured delay as a colored pill: green / amber / red by speed, "no connection", "…" while testing. */
+@Composable
+private fun DelayChip(delay: Long, testing: Boolean) {
+    val dark = com.v2ray.ang.ui.compose.LocalDarkTheme.current
+    val text: String
+    val fg: Color
+    val bg: Color
+    when {
+        delay > 0 -> {
+            text = stringResource(R.string.freedom_home_delay, delay)
+            when {
+                delay < 300 -> { fg = if (dark) Color(0xFF4ADE80) else Color(0xFF15803D); bg = if (dark) Color(0xFF123524) else Color(0xFFDCF2E3) }
+                delay < 800 -> { fg = if (dark) Color(0xFFFACC15) else Color(0xFF8A5300); bg = if (dark) Color(0xFF3A3112) else Color(0xFFFBEBD0) }
+                else -> { fg = MaterialTheme.colorScheme.onErrorContainer; bg = MaterialTheme.colorScheme.errorContainer }
+            }
+        }
+        delay < 0 -> {
+            text = stringResource(R.string.freedom_home_no_connection)
+            fg = MaterialTheme.colorScheme.onErrorContainer
+            bg = MaterialTheme.colorScheme.errorContainer
+        }
+        testing -> {
+            text = "…"
+            fg = MaterialTheme.colorScheme.onSurfaceVariant
+            bg = MaterialTheme.colorScheme.surfaceContainerLow
+        }
+        else -> return
+    }
+    Surface(shape = RoundedCornerShape(50), color = bg) {
+        Text(
+            text,
+            color = fg,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
         )
     }
 }
@@ -174,7 +513,7 @@ internal fun MainHome(
 @Composable
 private fun FreedomPromoCard(onTry: () -> Unit, onDismiss: () -> Unit) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.primaryContainer,
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -238,164 +577,11 @@ private fun EmptyGroup(onUpdate: () -> Unit, onNavigate: (MainDestination) -> Un
     }
 }
 
-@Composable
-private fun ConnectButton(isRunning: Boolean, onClick: () -> Unit) {
-    val accent = MaterialTheme.colorScheme.primary
-    val container by animateColorAsState(
-        if (isRunning) accent else MaterialTheme.colorScheme.surfaceContainerHighest,
-        label = "connectContainer",
-    )
-    val content = if (isRunning) MaterialTheme.colorScheme.onPrimary else accent
-    val label = stringResource(if (isRunning) R.string.freedom_home_disconnect else R.string.freedom_home_connect)
-    val state = stringResource(if (isRunning) R.string.freedom_home_connected else R.string.freedom_home_disconnected)
-    Surface(
-        onClick = onClick,
-        shape = CircleShape,
-        color = container,
-        border = BorderStroke(6.dp, accent.copy(alpha = if (isRunning) 0.3f else 0.15f)),
-        shadowElevation = 6.dp,
-        modifier = Modifier
-            .size(180.dp)
-            .semantics {
-                contentDescription = label
-                stateDescription = state
-            },
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    painterResource(R.drawable.ic_freedom_power_24dp),
-                    contentDescription = null,
-                    tint = content,
-                    modifier = Modifier.size(64.dp),
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(label, color = content, style = MaterialTheme.typography.titleMedium)
-            }
-        }
-    }
-}
-
-@Composable
-private fun ServerSelector(title: String, delay: Long, testing: Boolean, enabled: Boolean, onClick: () -> Unit) {
-    val (flag, name) = splitServerName(title)
-    val label = stringResource(R.string.freedom_home_server)
-    Surface(
-        onClick = onClick,
-        enabled = enabled,
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = "$label: $title" },
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (flag != null) {
-                Text(flag, fontSize = 28.sp)
-                Spacer(Modifier.size(12.dp))
-            }
-            Column(Modifier.weight(1f)) {
-                Text(label, style = MaterialTheme.typography.labelMedium)
-                Text(
-                    name,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            DelayLabel(delay, testing)
-            Spacer(Modifier.size(8.dp))
-            Icon(painterResource(R.drawable.ic_expand_more_24dp), contentDescription = null)
-        }
-    }
-}
-
-@Composable
-private fun ServerPickerDialog(
-    rows: List<ServerRowUiModel>,
-    selectedGuid: String?,
-    testing: Boolean,
-    onTest: () -> Unit,
-    onSelect: (String) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    // Measure every server once when the list opens (results stay until the next test).
-    LaunchedEffect(Unit) {
-        if (!testing && rows.isNotEmpty() && rows.all { it.testDelayMillis == 0L }) onTest()
-    }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.freedom_home_choose_server)) },
-        text = {
-            LazyColumn(Modifier.heightIn(max = 460.dp)) {
-                items(rows, key = { it.guid }) { row ->
-                    val isSelected = row.guid == selectedGuid
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = isSelected,
-                                role = Role.RadioButton,
-                                onClick = { onSelect(row.guid) },
-                            )
-                            .padding(vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        RadioButton(selected = isSelected, onClick = null)
-                        val (flag, name) = splitServerName(row.remarks)
-                        Text(flag ?: "", fontSize = 22.sp, modifier = Modifier.size(width = 32.dp, height = 30.dp))
-                        Text(
-                            name,
-                            modifier = Modifier.weight(1f),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        DelayLabel(row.testDelayMillis, testing)
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onTest, enabled = !testing) {
-                Text(stringResource(R.string.freedom_home_test))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.cancel)) }
-        },
-    )
-}
-
-/** Measured delay: green / amber / red by speed, "no connection" on failure, "…" while testing. */
-@Composable
-private fun DelayLabel(delay: Long, testing: Boolean) {
-    val text: String
-    val color: Color
-    when {
-        delay > 0 -> {
-            text = stringResource(R.string.freedom_home_delay, delay)
-            color = when {
-                delay < 300 -> Color(0xFF2E9E6A)
-                delay < 800 -> Color(0xFFC9900A)
-                else -> Color(0xFFD9534F)
-            }
-        }
-        delay < 0 -> {
-            text = stringResource(R.string.freedom_home_no_connection)
-            color = MaterialTheme.colorScheme.error
-        }
-        testing -> {
-            text = "…"
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        }
-        else -> return
-    }
-    Text(text, color = color, style = MaterialTheme.typography.bodySmall)
+/** Whole days left until [expireMillis], rounded up ("ends in 3 h" counts as 1 day); 0 once expired. */
+internal fun freedomDaysLeft(expireMillis: Long, nowMillis: Long): Int {
+    val left = expireMillis - nowMillis
+    if (left <= 0L) return 0
+    return ((left + MILLIS_PER_DAY - 1) / MILLIS_PER_DAY).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
 }
 
 /**

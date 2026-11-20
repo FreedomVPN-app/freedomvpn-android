@@ -4,4 +4,22 @@
     <string name="freedom_update_channel">Tətbiq yeniləmələri</string>
     <string name="freedom_update_push_title">Freedom VPN %1$s versiyası mövcuddur</string>
     <string name="freedom_update_push_text">Yeniləməni yükləmək üçün toxunun. Abunəliyiniz və ayarlarınız qorunur.</string>
+    <string name="freedom_home_all_servers_and_subs">Bütün serverlər və abunəliklər</string>
+    <string name="freedom_home_tap_to_connect">Bağlantını qorumaq üçün toxunun</string>
+    <string name="freedom_home_connected_to">Qorunur · %1$s</string>
+    <string name="freedom_home_traffic_of">%1$s / %2$s</string>
+    <string name="freedom_home_expired">Abunəlik bitib</string>
+    <string name="freedom_home_until">%1$s tarixinədək</string>
+    <string name="freedom_home_invite_short">Dəvət et</string>
+    <string name="freedom_home_servers">Serverlər</string>
+    <string name="freedom_home_ping">Ping</string>
+    <string name="freedom_home_ping_running">Yoxlanılır…</string>
+    <string name="freedom_home_selected">Seçilib</string>
+    <string name="freedom_home_not_selected">Seçilməyib</string>
+    <string name="freedom_nav_home">Əsas</string>
+    <string name="freedom_nav_more">Daha çox</string>
+    <plurals name="freedom_home_days_left">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
 </resources>

@@ -127,4 +127,24 @@
     <string name="freedom_update_channel">Обновления приложения</string>
     <string name="freedom_update_push_title">Доступна версия Freedom VPN %1$s</string>
     <string name="freedom_update_push_text">Нажмите, чтобы скачать обновление. Подписка и настройки сохранятся.</string>
+    <string name="freedom_home_all_servers_and_subs">Все серверы и подписки</string>
+    <string name="freedom_home_tap_to_connect">Нажмите, чтобы защитить соединение</string>
+    <string name="freedom_home_connected_to">Защищено · %1$s</string>
+    <string name="freedom_home_traffic_of">%1$s из %2$s</string>
+    <string name="freedom_home_expired">Подписка закончилась</string>
+    <string name="freedom_home_until">до %1$s</string>
+    <string name="freedom_home_invite_short">Пригласить</string>
+    <string name="freedom_home_servers">Серверы</string>
+    <string name="freedom_home_ping">Пинг</string>
+    <string name="freedom_home_ping_running">Проверяем…</string>
+    <string name="freedom_home_selected">Выбран</string>
+    <string name="freedom_home_not_selected">Не выбран</string>
+    <string name="freedom_nav_home">Главная</string>
+    <string name="freedom_nav_more">Ещё</string>
+    <plurals name="freedom_home_days_left">
+        <item quantity="one">%d день</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="many">%d дней</item>
+        <item quantity="other">%d дня</item>
+    </plurals>
 </resources>

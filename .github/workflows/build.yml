@@ -134,6 +134,7 @@ jobs:
           --tests 'com.v2ray.ang.ui.main.ServerNameSplitTest' \
           --tests 'com.v2ray.ang.ui.main.ExpiryDateFormatTest' \
           --tests 'com.v2ray.ang.ui.main.MainSubscriptionInfoTest' \
+          --tests 'com.v2ray.ang.ui.main.FreedomHomeTest' \
           --tests 'com.v2ray.ang.ui.userasset.UserAssetViewModelTest'
 
     - name: Build APK

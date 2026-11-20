@@ -125,4 +125,22 @@
     <string name="freedom_update_channel">App updates</string>
     <string name="freedom_update_push_title">Freedom VPN %1$s is available</string>
     <string name="freedom_update_push_text">Tap to download the update. Your subscription and settings stay in place.</string>
+    <string name="freedom_home_all_servers_and_subs">All servers and subscriptions</string>
+    <string name="freedom_home_tap_to_connect">Tap to protect your connection</string>
+    <string name="freedom_home_connected_to">Protected · %1$s</string>
+    <string name="freedom_home_traffic_of">%1$s of %2$s</string>
+    <string name="freedom_home_expired">Subscription has ended</string>
+    <string name="freedom_home_until">until %1$s</string>
+    <string name="freedom_home_invite_short">Invite</string>
+    <string name="freedom_home_servers">Servers</string>
+    <string name="freedom_home_ping">Ping</string>
+    <string name="freedom_home_ping_running">Checking…</string>
+    <string name="freedom_home_selected">Selected</string>
+    <string name="freedom_home_not_selected">Not selected</string>
+    <string name="freedom_nav_home">Home</string>
+    <string name="freedom_nav_more">More</string>
+    <plurals name="freedom_home_days_left">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
 </resources>

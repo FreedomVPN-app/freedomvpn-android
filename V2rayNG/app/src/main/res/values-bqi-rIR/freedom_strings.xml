@@ -4,4 +4,22 @@
     <string name="freedom_update_channel">به‌روزرسانی برنامه</string>
     <string name="freedom_update_push_title">نسخه %1$s از Freedom VPN منتشر شد</string>
     <string name="freedom_update_push_text">برای دانلود به‌روزرسانی بزنید. اشتراک و تنظیمات شما حفظ می‌شود.</string>
+    <string name="freedom_home_all_servers_and_subs">همه سرورها و اشتراک‌ها</string>
+    <string name="freedom_home_tap_to_connect">برای محافظت از اتصال بزنید</string>
+    <string name="freedom_home_connected_to">محافظت‌شده · %1$s</string>
+    <string name="freedom_home_traffic_of">%1$s از %2$s</string>
+    <string name="freedom_home_expired">اشتراک به پایان رسیده است</string>
+    <string name="freedom_home_until">تا %1$s</string>
+    <string name="freedom_home_invite_short">دعوت</string>
+    <string name="freedom_home_servers">سرورها</string>
+    <string name="freedom_home_ping">پینگ</string>
+    <string name="freedom_home_ping_running">در حال بررسی…</string>
+    <string name="freedom_home_selected">انتخاب‌شده</string>
+    <string name="freedom_home_not_selected">انتخاب‌نشده</string>
+    <string name="freedom_nav_home">خانه</string>
+    <string name="freedom_nav_more">بیشتر</string>
+    <plurals name="freedom_home_days_left">
+        <item quantity="one">%d روز</item>
+        <item quantity="other">%d روز</item>
+    </plurals>
 </resources>
