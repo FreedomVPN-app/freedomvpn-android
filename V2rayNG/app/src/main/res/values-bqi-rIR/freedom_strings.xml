@@ -22,5 +22,5 @@
         <item quantity="one">%d روز</item>
         <item quantity="other">%d روز</item>
     </plurals>
-    <string name="freedom_profile_updated">پروفایل به‌روزرسانی شد</string>
+    <string name="freedom_profile_updated">فهرست سرورها به‌روزرسانی شد</string>
 </resources>

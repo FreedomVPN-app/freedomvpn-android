@@ -22,5 +22,5 @@
         <item quantity="one">%d দিন</item>
         <item quantity="other">%d দিন</item>
     </plurals>
-    <string name="freedom_profile_updated">প্রোফাইল আপডেট হয়েছে</string>
+    <string name="freedom_profile_updated">সার্ভার তালিকা আপডেট হয়েছে</string>
 </resources>

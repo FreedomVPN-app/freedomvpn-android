@@ -21,5 +21,5 @@
     <plurals name="freedom_home_days_left">
         <item quantity="other">%d ngày</item>
     </plurals>
-    <string name="freedom_profile_updated">Đã cập nhật hồ sơ</string>
+    <string name="freedom_profile_updated">Đã cập nhật danh sách máy chủ</string>
 </resources>
