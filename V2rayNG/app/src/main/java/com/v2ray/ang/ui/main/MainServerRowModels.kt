@@ -39,7 +39,9 @@ internal fun buildServerRowUiModel(
 }
 
 private fun serverProtocolDescription(profile: ProfileItem): String {
-    if (profile.configType.isComplexType()) return profile.configType.name
+    // Freedom VPN: full Xray configs from the panel (type CUSTOM, groups, chains) get no type line:
+    // "CUSTOM" tells users nothing. Simple links keep "VLESS / grpc / reality" etc.
+    if (profile.configType.isComplexType()) return ""
     val parts = mutableListOf(profile.configType.name)
     profile.network?.let { network ->
         if (network.isNotBlank() && !network.equals("tcp", ignoreCase = true)) {
