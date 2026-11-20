@@ -24,4 +24,15 @@
     </plurals>
     <string name="freedom_profile_updated">فهرست سرورها به‌روزرسانی شد</string>
     <string name="freedom_home_ping_server">بررسی پینگ: %1$s</string>
+    <string name="freedom_invite_hint">این کد QR را به دوستتان نشان دهید یا لینک را برایش بفرستید. هر کس با آن ثبت‌نام کند، دعوت‌شده شما می‌شود.</string>
+    <string name="freedom_invite_qr">کد QR لینک دعوت شما</string>
+    <string name="freedom_invite_share">اشتراک‌گذاری لینک</string>
+    <string name="freedom_invite_copy">کپی لینک</string>
+    <string name="freedom_invite_copied">لینک کپی شد</string>
+    <string name="freedom_invite_stats">دعوت‌شده: %1$d · با اشتراک: %2$d</string>
+    <string name="freedom_invite_more">پاداش‌ها و جزئیات در حساب کاربری</string>
+    <string name="freedom_invite_error">بارگذاری لینک دعوت ممکن نشد. اتصال را بررسی کرده و دوباره تلاش کنید.</string>
+    <string name="freedom_invite_retry">تلاش دوباره</string>
+    <string name="freedom_invite_share_text">به Freedom VPN بپیوند — VPN سریع و پایدار: %1$s</string>
+    <string name="freedom_invite">دعوت از دوستان</string>
 </resources>

@@ -204,6 +204,10 @@
         <activity
             android:name=".freedom.CabinetActivity"
             android:exported="false" />
+        <!-- Freedom VPN: invite a friend (QR code of the referral link) -->
+        <activity
+            android:name=".freedom.InviteActivity"
+            android:exported="false" />
         <!-- Freedom VPN: Google / Yandex return here. Host = CABINET_HOST in FreedomConfig.kt;
              needs https://<host>/.well-known/assetlinks.json with the signing key fingerprint. -->
         <activity

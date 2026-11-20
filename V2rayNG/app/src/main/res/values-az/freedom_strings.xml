@@ -24,4 +24,15 @@
     </plurals>
     <string name="freedom_profile_updated">Server siyahısı yeniləndi</string>
     <string name="freedom_home_ping_server">Pingi yoxla: %1$s</string>
+    <string name="freedom_invite_hint">Bu QR kodu dostunuza göstərin və ya linki göndərin. Onunla qeydiyyatdan keçən sizin dəvətliniz olur.</string>
+    <string name="freedom_invite_qr">Dəvət linkinizin QR kodu</string>
+    <string name="freedom_invite_share">Linki paylaş</string>
+    <string name="freedom_invite_copy">Linki kopyala</string>
+    <string name="freedom_invite_copied">Link kopyalandı</string>
+    <string name="freedom_invite_stats">Dəvət olunub: %1$d · abunəliyi var: %2$d</string>
+    <string name="freedom_invite_more">Bonuslar və təfərrüatlar hesabınızda</string>
+    <string name="freedom_invite_error">Dəvət linki yüklənmədi. Bağlantını yoxlayıb yenidən cəhd edin.</string>
+    <string name="freedom_invite_retry">Yenidən cəhd et</string>
+    <string name="freedom_invite_share_text">Freedom VPN-ə qoşul — sürətli və stabil VPN: %1$s</string>
+    <string name="freedom_invite">Dostu dəvət et</string>
 </resources>

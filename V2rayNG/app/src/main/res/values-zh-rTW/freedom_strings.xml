@@ -23,4 +23,15 @@
     </plurals>
     <string name="freedom_profile_updated">伺服器列表已更新</string>
     <string name="freedom_home_ping_server">檢測延遲：%1$s</string>
+    <string name="freedom_invite_hint">向朋友展示此 QR 碼或傳送連結。透過該連結註冊的人將成為您的受邀者。</string>
+    <string name="freedom_invite_qr">您的邀請連結 QR 碼</string>
+    <string name="freedom_invite_share">分享連結</string>
+    <string name="freedom_invite_copy">複製連結</string>
+    <string name="freedom_invite_copied">連結已複製</string>
+    <string name="freedom_invite_stats">已邀請：%1$d · 有訂閱：%2$d</string>
+    <string name="freedom_invite_more">獎勵與詳情請見個人中心</string>
+    <string name="freedom_invite_error">無法載入邀請連結。請檢查網路後重試。</string>
+    <string name="freedom_invite_retry">重試</string>
+    <string name="freedom_invite_share_text">加入 Freedom VPN — 快速穩定的 VPN：%1$s</string>
+    <string name="freedom_invite">邀請朋友</string>
 </resources>

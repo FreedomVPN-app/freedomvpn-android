@@ -149,4 +149,14 @@
     </plurals>
     <string name="freedom_profile_updated">Список серверов обновлён</string>
     <string name="freedom_home_ping_server">Проверить пинг: %1$s</string>
+    <string name="freedom_invite_hint">Покажите QR-код другу или отправьте ему ссылку. Кто зарегистрируется по ней, станет вашим приглашённым.</string>
+    <string name="freedom_invite_qr">QR-код вашей ссылки-приглашения</string>
+    <string name="freedom_invite_share">Поделиться ссылкой</string>
+    <string name="freedom_invite_copy">Скопировать ссылку</string>
+    <string name="freedom_invite_copied">Ссылка скопирована</string>
+    <string name="freedom_invite_stats">Приглашено: %1$d · с подпиской: %2$d</string>
+    <string name="freedom_invite_more">Бонусы и подробности в личном кабинете</string>
+    <string name="freedom_invite_error">Не удалось загрузить ссылку-приглашение. Проверьте интернет и попробуйте ещё раз.</string>
+    <string name="freedom_invite_retry">Повторить</string>
+    <string name="freedom_invite_share_text">Подключайся к Freedom VPN — быстрый и стабильный VPN: %1$s</string>
 </resources>

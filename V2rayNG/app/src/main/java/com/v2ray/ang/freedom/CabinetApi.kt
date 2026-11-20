@@ -32,6 +32,15 @@ object CabinetApi {
         @SerializedName("is_claimed") val isClaimed: Boolean = false,
     )
 
+    /** GET /cabinet/referral: the user's invite links and how many people joined through them. */
+    data class ReferralInfo(
+        @SerializedName("referral_code") val referralCode: String? = null,
+        @SerializedName("referral_link") val referralLink: String? = null,
+        @SerializedName("bot_referral_link") val botReferralLink: String? = null,
+        @SerializedName("total_referrals") val totalReferrals: Int = 0,
+        @SerializedName("active_referrals") val activeReferrals: Int = 0,
+    )
+
     data class ActiveDiscount(
         @SerializedName("discount_percent") val discountPercent: Int = 0,
         @SerializedName("expires_at") val expiresAt: String? = null,
@@ -300,6 +309,9 @@ object CabinetApi {
         if (r.code !in 200..299) throw ApiException(r.code, errorDetail(r), errorCode(r))
         return gson.fromJson(r.body, Array<PromoOffer>::class.java)?.toList().orEmpty()
     }
+
+    fun referralInfo(accessToken: String): ReferralInfo =
+        parseOk(call("GET", "/referral", accessToken = accessToken))
 
     fun activeDiscount(accessToken: String): ActiveDiscount =
         parseOk(call("GET", "/promo/active-discount", accessToken = accessToken))

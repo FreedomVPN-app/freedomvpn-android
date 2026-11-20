@@ -23,4 +23,15 @@
     </plurals>
     <string name="freedom_profile_updated">Đã cập nhật danh sách máy chủ</string>
     <string name="freedom_home_ping_server">Kiểm tra ping: %1$s</string>
+    <string name="freedom_invite_hint">Cho bạn bè xem mã QR này hoặc gửi liên kết. Người đăng ký qua liên kết sẽ là người được bạn mời.</string>
+    <string name="freedom_invite_qr">Mã QR của liên kết mời</string>
+    <string name="freedom_invite_share">Chia sẻ liên kết</string>
+    <string name="freedom_invite_copy">Sao chép liên kết</string>
+    <string name="freedom_invite_copied">Đã sao chép liên kết</string>
+    <string name="freedom_invite_stats">Đã mời: %1$d · có gói đăng ký: %2$d</string>
+    <string name="freedom_invite_more">Phần thưởng và chi tiết trong tài khoản</string>
+    <string name="freedom_invite_error">Không tải được liên kết mời. Kiểm tra kết nối và thử lại.</string>
+    <string name="freedom_invite_retry">Thử lại</string>
+    <string name="freedom_invite_share_text">Dùng Freedom VPN — VPN nhanh và ổn định: %1$s</string>
+    <string name="freedom_invite">Mời bạn bè</string>
 </resources>

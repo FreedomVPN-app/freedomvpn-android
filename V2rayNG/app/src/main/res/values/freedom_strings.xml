@@ -145,4 +145,14 @@
     </plurals>
     <string name="freedom_profile_updated">Server list updated</string>
     <string name="freedom_home_ping_server">Check ping: %1$s</string>
+    <string name="freedom_invite_hint">Show this QR code to a friend or send them the link. Whoever signs up with it becomes your invitee.</string>
+    <string name="freedom_invite_qr">QR code of your invite link</string>
+    <string name="freedom_invite_share">Share link</string>
+    <string name="freedom_invite_copy">Copy link</string>
+    <string name="freedom_invite_copied">Link copied</string>
+    <string name="freedom_invite_stats">Invited: %1$d · with a subscription: %2$d</string>
+    <string name="freedom_invite_more">Rewards and details in your account</string>
+    <string name="freedom_invite_error">Could not load your invite link. Check your connection and try again.</string>
+    <string name="freedom_invite_retry">Try again</string>
+    <string name="freedom_invite_share_text">Join Freedom VPN — fast and stable VPN: %1$s</string>
 </resources>

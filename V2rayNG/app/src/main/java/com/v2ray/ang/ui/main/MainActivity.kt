@@ -138,7 +138,7 @@ class MainActivity : HelperBaseComponentActivity() {
                     is MainAction.ShareClipboard -> shareToClipboard(action.guid)
                     is MainAction.ShareFullContent -> shareFullContentAsync(action.guid)
                     is MainAction.OpenSubscriptionLink -> openSubscriptionLink(action.url)
-                    MainAction.OpenInvite -> openCabinet(com.v2ray.ang.freedom.FreedomConfig.CABINET_REFERRAL_PATH)
+                    MainAction.OpenInvite -> openInvite()
                     else -> mainViewModel.onAction(action)
                 }
             },
@@ -160,6 +160,17 @@ class MainActivity : HelperBaseComponentActivity() {
     }
 
     /** Freedom VPN: the cabinet inside the app (signed in), optionally at [path]; otherwise sign in first. */
+    /** Freedom VPN: QR code and link to invite a friend; sign-in first when there is no session. */
+    private fun openInvite() {
+        startActivity(
+            if (com.v2ray.ang.freedom.AccountManager.isLoggedIn()) {
+                com.v2ray.ang.freedom.InviteActivity.intent(this)
+            } else {
+                com.v2ray.ang.freedom.LoginActivity.intent(this)
+            }
+        )
+    }
+
     private fun openCabinet(path: String?) {
         startActivity(
             if (com.v2ray.ang.freedom.AccountManager.isLoggedIn()) {

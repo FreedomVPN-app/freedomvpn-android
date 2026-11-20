@@ -28,4 +28,15 @@
     </plurals>
     <string name="freedom_profile_updated">تم تحديث قائمة الخوادم</string>
     <string name="freedom_home_ping_server">فحص زمن الاستجابة: %1$s</string>
+    <string name="freedom_invite_hint">اعرض رمز QR هذا على صديقك أو أرسل له الرابط. من يسجّل عبره يصبح مدعوًّا من قبلك.</string>
+    <string name="freedom_invite_qr">رمز QR لرابط الدعوة</string>
+    <string name="freedom_invite_share">مشاركة الرابط</string>
+    <string name="freedom_invite_copy">نسخ الرابط</string>
+    <string name="freedom_invite_copied">تم نسخ الرابط</string>
+    <string name="freedom_invite_stats">المدعوون: %1$d · لديهم اشتراك: %2$d</string>
+    <string name="freedom_invite_more">المكافآت والتفاصيل في حسابك</string>
+    <string name="freedom_invite_error">تعذّر تحميل رابط الدعوة. تحقّق من الاتصال وحاول مجددًا.</string>
+    <string name="freedom_invite_retry">إعادة المحاولة</string>
+    <string name="freedom_invite_share_text">انضم إلى Freedom VPN — شبكة VPN سريعة ومستقرة: %1$s</string>
+    <string name="freedom_invite">دعوة صديق</string>
 </resources>

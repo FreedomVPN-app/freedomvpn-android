@@ -23,4 +23,15 @@
     </plurals>
     <string name="freedom_profile_updated">服务器列表已更新</string>
     <string name="freedom_home_ping_server">检测延迟：%1$s</string>
+    <string name="freedom_invite_hint">向朋友展示此二维码或发送链接。通过该链接注册的人将成为您的受邀者。</string>
+    <string name="freedom_invite_qr">您的邀请链接二维码</string>
+    <string name="freedom_invite_share">分享链接</string>
+    <string name="freedom_invite_copy">复制链接</string>
+    <string name="freedom_invite_copied">链接已复制</string>
+    <string name="freedom_invite_stats">已邀请：%1$d · 有订阅：%2$d</string>
+    <string name="freedom_invite_more">奖励和详情请见个人中心</string>
+    <string name="freedom_invite_error">无法加载邀请链接。请检查网络后重试。</string>
+    <string name="freedom_invite_retry">重试</string>
+    <string name="freedom_invite_share_text">加入 Freedom VPN — 快速稳定的 VPN：%1$s</string>
+    <string name="freedom_invite">邀请朋友</string>
 </resources>
