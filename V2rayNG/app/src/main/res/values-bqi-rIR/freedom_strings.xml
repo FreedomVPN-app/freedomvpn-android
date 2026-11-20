@@ -35,4 +35,5 @@
     <string name="freedom_invite_retry">تلاش دوباره</string>
     <string name="freedom_invite_share_text">به Freedom VPN بپیوند — VPN سریع و پایدار: %1$s</string>
     <string name="freedom_invite">دعوت از دوستان</string>
+    <string name="freedom_home_traffic_unlimited">%1$s · بدون محدودیت</string>
 </resources>

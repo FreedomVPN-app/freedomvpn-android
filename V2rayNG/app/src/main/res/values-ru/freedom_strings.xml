@@ -159,4 +159,5 @@
     <string name="freedom_invite_error">Не удалось загрузить ссылку-приглашение. Проверьте интернет и попробуйте ещё раз.</string>
     <string name="freedom_invite_retry">Повторить</string>
     <string name="freedom_invite_share_text">Подключайся к Freedom VPN — быстрый и стабильный VPN: %1$s</string>
+    <string name="freedom_home_traffic_unlimited">%1$s · без лимита</string>
 </resources>

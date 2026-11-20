@@ -155,4 +155,5 @@
     <string name="freedom_invite_error">Could not load your invite link. Check your connection and try again.</string>
     <string name="freedom_invite_retry">Try again</string>
     <string name="freedom_invite_share_text">Join Freedom VPN — fast and stable VPN: %1$s</string>
+    <string name="freedom_home_traffic_unlimited">%1$s · no limit</string>
 </resources>

@@ -285,8 +285,12 @@ private fun ConnectButton(isRunning: Boolean, onClick: () -> Unit) {
 private fun SubscriptionStrip(model: SubscriptionInfoUiModel, onInvite: (() -> Unit)?) {
     val scheme = MaterialTheme.colorScheme
     val locale = LocalConfiguration.current.locales[0]
-    val totalText = if (model.totalBytes > 0L) model.totalBytes.toTrafficString() else "∞"
-    val traffic = stringResource(R.string.freedom_home_traffic_of, model.usedBytes.toTrafficString(), totalText)
+    // An unlimited plan says so in words: the "∞" sign was too small to read at this text size.
+    val traffic = if (model.totalBytes > 0L) {
+        stringResource(R.string.freedom_home_traffic_of, model.usedBytes.toTrafficString(), model.totalBytes.toTrafficString())
+    } else {
+        stringResource(R.string.freedom_home_traffic_unlimited, model.usedBytes.toTrafficString())
+    }
     val headline = when {
         model.expired -> stringResource(R.string.freedom_home_expired)
         model.expireMillis != null -> {

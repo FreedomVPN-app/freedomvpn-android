@@ -35,4 +35,5 @@
     <string name="freedom_invite_retry">Yenidən cəhd et</string>
     <string name="freedom_invite_share_text">Freedom VPN-ə qoşul — sürətli və stabil VPN: %1$s</string>
     <string name="freedom_invite">Dostu dəvət et</string>
+    <string name="freedom_home_traffic_unlimited">%1$s · limitsiz</string>
 </resources>

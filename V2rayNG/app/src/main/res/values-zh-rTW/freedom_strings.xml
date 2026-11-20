@@ -34,4 +34,5 @@
     <string name="freedom_invite_retry">重試</string>
     <string name="freedom_invite_share_text">加入 Freedom VPN — 快速穩定的 VPN：%1$s</string>
     <string name="freedom_invite">邀請朋友</string>
+    <string name="freedom_home_traffic_unlimited">%1$s · 不限流量</string>
 </resources>

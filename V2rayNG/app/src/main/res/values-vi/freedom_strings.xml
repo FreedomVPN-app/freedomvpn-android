@@ -34,4 +34,5 @@
     <string name="freedom_invite_retry">Thử lại</string>
     <string name="freedom_invite_share_text">Dùng Freedom VPN — VPN nhanh và ổn định: %1$s</string>
     <string name="freedom_invite">Mời bạn bè</string>
+    <string name="freedom_home_traffic_unlimited">%1$s · không giới hạn</string>
 </resources>
