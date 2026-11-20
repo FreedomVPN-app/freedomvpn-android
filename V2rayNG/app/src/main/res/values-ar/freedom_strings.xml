@@ -26,4 +26,5 @@
         <item quantity="many">%d يومًا</item>
         <item quantity="other">%d يوم</item>
     </plurals>
+    <string name="freedom_profile_updated">تم تحديث الملف الشخصي</string>
 </resources>

@@ -21,4 +21,5 @@
     <plurals name="freedom_home_days_left">
         <item quantity="other">%d 天</item>
     </plurals>
+    <string name="freedom_profile_updated">設定檔已更新</string>
 </resources>

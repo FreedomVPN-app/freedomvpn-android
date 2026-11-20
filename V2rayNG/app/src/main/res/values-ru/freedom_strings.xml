@@ -147,4 +147,5 @@
         <item quantity="many">%d дней</item>
         <item quantity="other">%d дня</item>
     </plurals>
+    <string name="freedom_profile_updated">Профиль обновлён</string>
 </resources>

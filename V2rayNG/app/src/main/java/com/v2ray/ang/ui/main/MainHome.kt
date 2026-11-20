@@ -109,8 +109,9 @@ internal fun MainHome(
         LaunchedEffect(group.id, rows.firstOrNull()?.guid, selected == null) {
             if (selected == null) rows.firstOrNull()?.let { onAction(MainAction.SelectServer(it.guid)) }
         }
-        // Measure every server once when the list first shows (results stay until the next test).
-        LaunchedEffect(group.id) {
+        // Measure every server once when the list first shows, and again when a subscription update
+        // replaced the servers (new GUIDs come without results). Results stay until the next test.
+        LaunchedEffect(group.id, rows.map { it.guid }) {
             if (!uiState.isTesting && rows.all { it.testDelayMillis == 0L }) onAction(MainAction.TestRealAllServers)
         }
 

@@ -577,6 +577,10 @@ class MainViewModel(
                         result.successCount + result.failureCount + result.skipCount == 0 ->
                             toast(R.string.title_update_subscription_no_subscription)
 
+                        // Freedom VPN: one subscription refreshed -> a plain "profile updated", not a server count
+                        subId.isNotEmpty() && result.successCount > 0 && result.failureCount + result.skipCount == 0 ->
+                            toast(R.string.freedom_profile_updated)
+
                         result.successCount > 0 && result.failureCount + result.skipCount == 0 ->
                             toast(
                                 getQuantityString(
