@@ -239,6 +239,27 @@ fun SettingsScreen(
                 .verticalScrollbar(scrollState)
                 .verticalScroll(scrollState)
         ) {
+            // Freedom VPN: theme and language on top — inside the collapsed group nobody found them
+            SettingsListItem(
+                title = stringResource(R.string.title_pref_ui_mode_night),
+                entries = uiModeNightEntries,
+                values = uiModeNightValues,
+                selectedValue = uiModeNight,
+                onSelected = {
+                    uiModeNight = it
+                    ThemeManager.setThemeMode(it)
+                }
+            )
+            SettingsListItem(
+                title = stringResource(R.string.title_language),
+                entries = languageEntries,
+                values = languageValues,
+                selectedValue = language,
+                onSelected = {
+                    language = it
+                    AppLocaleManager.setApplicationLanguage(it)
+                }
+            )
             // Freedom VPN: screens for experienced users, moved here from the side menu
             CollapsiblePreferenceGroupHeader(
                 title = stringResource(R.string.freedom_drawer_advanced),
@@ -307,26 +328,6 @@ fun SettingsScreen(
                     onCheckedChange = {
                         dynamicColor = it
                         ThemeManager.setDynamicColorEnabled(it)
-                    }
-                )
-                SettingsListItem(
-                    title = stringResource(R.string.title_language),
-                    entries = languageEntries,
-                    values = languageValues,
-                    selectedValue = language,
-                    onSelected = {
-                        language = it
-                        AppLocaleManager.setApplicationLanguage(it)
-                    }
-                )
-                SettingsListItem(
-                    title = stringResource(R.string.title_pref_ui_mode_night),
-                    entries = uiModeNightEntries,
-                    values = uiModeNightValues,
-                    selectedValue = uiModeNight,
-                    onSelected = {
-                        uiModeNight = it
-                        ThemeManager.setThemeMode(it)
                     }
                 )
             }
