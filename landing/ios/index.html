@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freedom VPN на iPhone и iPad — как подключиться</title>
+<meta name="description" content="Как подключить Freedom VPN на iPhone и iPad через приложение Happ: установка, добавление подписки, что делать, если Happ нет в App Store.">
+<meta name="theme-color" content="#F7E7CE">
+<style>
+  :root{
+    --bg:#F7E7CE; --card:#FEF9F0; --card2:#FCF4E6; --text:#1F1A12; --muted:#746343;
+    --line:#DFCEB3; --accent:#073C92; --accent-soft:#E9EFFA; --ok:#15803D;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0C111F; --card:#0F172A; --card2:#151E33; --text:#F1F5F9; --muted:#94A3B8;
+      --line:#2A3346; --accent:#72A5F8; --accent-soft:#13284D; --ok:#4ADE80; }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:Manrope,"Segoe UI",Roboto,system-ui,-apple-system,sans-serif;
+    line-height:1.5; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:28px 18px 48px}
+  header{text-align:center;margin-bottom:22px}
+  .logo{width:88px;height:88px;border-radius:24px;display:block;margin:0 auto 14px}
+  h1{font-size:28px;line-height:1.2;margin:0 0 6px;font-weight:800}
+  .lead{color:var(--muted);margin:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;margin-top:16px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+    padding:16px 18px;border-radius:14px;font-weight:700;font-size:17px;text-decoration:none;border:0;cursor:pointer}
+  .btn-main{background:var(--accent);color:#fff}
+  @media (prefers-color-scheme: dark){ .btn-main{color:#0A1A3A} }
+  .btn-alt{background:transparent;color:var(--accent);border:1px solid var(--line);margin-top:10px;font-size:15px;padding:13px}
+  .meta{color:var(--muted);font-size:13px;text-align:center;margin-top:10px}
+  .feats{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+  .feats li{display:flex;gap:12px;align-items:flex-start}
+  .dot{flex:0 0 28px;height:28px;border-radius:9px;background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+  h2{font-size:19px;margin:0 0 12px}
+  ol.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+  ol.steps li{counter-increment:s;position:relative;padding:0 0 14px 42px}
+  ol.steps li:last-child{padding-bottom:0}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;
+    background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+  @media (prefers-color-scheme: dark){ ol.steps li::before{color:#0A1A3A} }
+  b{font-weight:700}
+  details{background:var(--card2);border-radius:14px;padding:12px 14px;margin-top:10px}
+  summary{cursor:pointer;font-weight:700}
+  details p{margin:8px 0 0;color:var(--muted)}
+  .links{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+  .links a{color:var(--accent);text-decoration:none;font-weight:600;padding:8px 12px;border:1px solid var(--line);border-radius:999px;font-size:14px}
+  .note{background:var(--accent-soft);border-radius:14px;padding:12px 14px;margin-top:12px;font-size:15px}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="logo" viewBox="0 0 50 50" aria-hidden="true">
+      <rect width="50" height="50" rx="12" fill="#0E1626"/>
+      <circle cx="24" cy="26" r="13" fill="none" stroke="#2FE0C4" stroke-width="2"/>
+      <ellipse cx="24" cy="26" rx="6" ry="13" fill="none" stroke="#2FE0C4" stroke-opacity=".6" stroke-width="1.5"/>
+      <path d="M11 26h26M13 19.5h22M13 32.5h22" stroke="#2FE0C4" stroke-opacity=".6" stroke-width="1.5"/>
+      <path d="M12 33C22 30 30 22 38 11c-3 11-11 19-26 22z" fill="#2FE0C4"/>
+    </svg>
+    <h1>Freedom VPN на iPhone и iPad</h1>
+    <p class="lead">Подключение через бесплатное приложение Happ. Займёт 2 минуты.</p>
+  </header>
+
+  <div class="card">
+    <a class="btn btn-main" href="https://apps.apple.com/ru/app/happ-lite/id6799917773">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+      Установить Happ из App Store
+    </a>
+    <a class="btn btn-alt" href="https://apps.apple.com/us/app/happ-proxy-utility/id6504287215">Happ для зарубежного Apple ID</a>
+    <p class="meta">Ссылки меняются: Apple время от времени убирает VPN-приложения из российского App Store. Актуальный список — на <a style="color:inherit" href="https://www.happ.su/happ/ru">сайте Happ</a>.</p>
+  </div>
+
+  <div class="card">
+    <h2>Как подключить</h2>
+    <ol class="steps">
+      <li>Установите <b>Happ</b> по кнопке выше и один раз откройте его.</li>
+      <li>Откройте бота <a style="color:var(--accent)" href="https://t.me/Topfreedom_bot">@Topfreedom_bot</a> или <a style="color:var(--accent)" href="https://cabinet.topfreedomhub.com/">личный кабинет</a> и нажмите <b>«Подключиться»</b>. Откроется страница вашей подписки.</li>
+      <li>Выберите <b>iOS</b> и приложение <b>Happ</b>, нажмите кнопку добавления подписки. Happ откроется сам, серверы появятся в списке.</li>
+      <li>Выберите <b>«⚡ Авто — лучший сервер»</b> и нажмите кнопку подключения.</li>
+      <li>Первый раз iPhone спросит разрешение добавить конфигурацию VPN — нажмите <b>«Разрешить»</b> и подтвердите кодом или Face ID.</li>
+    </ol>
+    <div class="note">Новый пользователь? В боте или личном кабинете можно включить <b>7 дней бесплатно</b>.</div>
+  </div>
+
+  <div class="card">
+    <h2>Если что-то не получается</h2>
+    <details>
+      <summary>Happ нет в App Store</summary>
+      <p>Если Happ уже стоит на телефоне — <b>не удаляйте его</b>: удалённое приложение не получится скачать заново с российского Apple ID.</p>
+      <p>Если не стоит, есть два способа. <b>1. TestFlight.</b> Установите из App Store приложение Apple «TestFlight», затем откройте ссылку «TestFlight Rus» на <a style="color:var(--accent)" href="https://www.happ.su/happ/ru">сайте Happ</a>. <b>2. Зарубежный Apple ID.</b> Создайте Apple ID другой страны на appleid.apple.com (способ оплаты — «Нет»). На iPhone: «Настройки» → ваше имя → «Медиаматериалы и покупки» → «Выйти», войдите новым Apple ID, скачайте Happ по второй кнопке выше, затем верните свой Apple ID. iCloud при этом не трогайте — меняется только аккаунт для покупок.</p>
+    </details>
+    <details>
+      <summary>Кнопка на странице подписки не открывает Happ</summary>
+      <p>Скопируйте ссылку подписки на её странице, откройте Happ, нажмите «+» и выберите вставку из буфера обмена.</p>
+    </details>
+    <details>
+      <summary>Ошибка «NEAgentErrorDomain» или VPN не включается</summary>
+      <p>Это разовый сбой iOS. Отключите и снова включите подключение в Happ. Если не помогло — перезагрузите iPhone.</p>
+    </details>
+    <details>
+      <summary>Подключено, но сайты не открываются</summary>
+      <p>В Happ обновите подписку (значок обновления у её названия) и выберите «⚡ Авто». При ограничениях мобильного интернета выберите «📶 Белые списки».</p>
+    </details>
+  </div>
+
+  <div class="links">
+    <a href="https://t.me/Topfreedom_bot">Бот @Topfreedom_bot</a>
+    <a href="https://cabinet.topfreedomhub.com/">Личный кабинет</a>
+    <a href="https://t.me/topfreedom_support_bot">Поддержка</a>
+    <a href="/android/">Freedom VPN для Android</a>
+  </div>
+
+  <footer>Freedom VPN · Happ — стороннее приложение (Flyfrog LLC), Freedom VPN с ним не связан.</footer>
+</div>
+</body>
+</html>
